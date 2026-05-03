@@ -30,7 +30,8 @@
       "Bash(curl -sv http://localhost:5500/)",
       "Bash(curl -sv http://127.0.0.1:5500/)",
       "Bash(docker build *)",
-      "Bash(docker exec *)"
+      "Bash(docker exec *)",
+      "Bash(xargs cat *)"
     ]
   }
 }
