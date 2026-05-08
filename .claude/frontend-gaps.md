@@ -1,6 +1,6 @@
 # Frontend Gaps — Features in Backend Not Yet in UI
 
-> Last audited: 2026-05-08 (Orders module fixed 2026-05-08; Staff Management completed 2026-05-08; Menu Management completed 2026-05-08; Inventory & Kitchen fixed 2026-05-08)
+> Last audited: 2026-05-08 (Orders module fixed 2026-05-08; Staff Management completed 2026-05-08; Menu Management completed 2026-05-08; Inventory & Kitchen fixed 2026-05-08; Auth & Onboarding fixed 2026-05-08)
 > Method: read every route file in `/web/src/routes` and `/admin/src/routes` against the original gap list.
 > Status key: ✅ Done | ⚠️ Partial | ❌ Pending
 
@@ -176,11 +176,11 @@
 
 | Gap | Status | Detail |
 |---|---|---|
-| **Password reset flow (staff)** | ⚠️ Partial | `ForgotPasswordPage.tsx` and `ForgotPasswordScreen.tsx` exist. Not confirmed wired to API. |
-| **Token refresh** | ❌ Pending | No silent token refresh before expiry. |
+| **Password reset flow (staff)** | ✅ Done | Full OTP-based flow: `ForgotPasswordScreen` → `OTPScreen (mode=reset)` → `SetNewPasswordScreen`. `SetNewPasswordScreen.tsx` added; `ForgotPasswordScreen.onOtpSent` now passes email; `LoginPage` wired `otp-reset` success → `set-password` → `signin`. |
+| **Token refresh** | ✅ Done | `AuthStore` stores `expires_at` in localStorage (`cl_token_expires`) and in `tokenExpiresAt` field. `refreshToken` action calls `POST /auth/staff/refresh`. `_authenticated.tsx` schedules a `setTimeout` to refresh 60s before expiry, cleared on unmount. |
 | **Customer login / portal** | ✅ Done | `portal/login.tsx`, `portal/home.tsx`, `portal/bookings.tsx`, `portal/reservations.tsx`, `portal/profile.tsx` all exist. |
 | **Customer restaurant selector** | ✅ Done | `portal/restaurants.tsx` exists. |
-| **Tenant onboarding wizard** | ❌ Pending | Onboarding stops at "invite team" — no branch setup step. |
+| **Tenant onboarding wizard** | ✅ Done | Redesigned `OnboardingScreen.tsx` with 4 steps: (0) Account+Restaurant — calls `POST /public/signup` with correct fields (`tenant_name`, `tenant_slug`, `owner_name`, `owner_email`, `password`); (1) Branch setup — calls `POST /onboarding/branch` with `name`, `address.*`, `timezone`, `currency`, `phone`; (2) Team invite — calls `POST /onboarding/invite-staff` (new backend route); (3) Done with temp passwords shown. Backend: `plan_id` made optional (auto-selects starter plan); `OnboardingController::inviteStaff` added; route `POST /onboarding/invite-staff` added. |
 | **Change password (staff)** | ✅ Done | `ChangePasswordForm.tsx` in profile components. |
 | **Staff own profile** | ✅ Done | `ProfilePage.tsx` with `PersonalInfoForm.tsx`, `PhotoUpload.tsx`, `NotificationSettings.tsx`, `AppearanceSettings.tsx`. |
 
