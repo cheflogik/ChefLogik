@@ -1,6 +1,6 @@
 # Frontend Gaps — Features in Backend Not Yet in UI
 
-> Last audited: 2026-05-08 (Orders module fixed 2026-05-08; Staff Management completed 2026-05-08; Menu Management completed 2026-05-08)
+> Last audited: 2026-05-08 (Orders module fixed 2026-05-08; Staff Management completed 2026-05-08; Menu Management completed 2026-05-08; Inventory & Kitchen fixed 2026-05-08)
 > Method: read every route file in `/web/src/routes` and `/admin/src/routes` against the original gap list.
 > Status key: ✅ Done | ⚠️ Partial | ❌ Pending
 
@@ -100,7 +100,7 @@
 | Gap | Status | Detail |
 |---|---|---|
 | **Inventory item CRUD** | ✅ Done | `inventory/index.tsx` list, `inventory/items/new.tsx`, `inventory/items/$itemId.tsx` all exist. |
-| **Stock alert thresholds** | ⚠️ Partial | `par_level` and `reorder_point` are displayed in the list. Need to verify they are editable in the item form (`$itemId.tsx`). |
+| **Stock alert thresholds** | ✅ Done | `par_level`, `reorder_point`, and `critical_threshold` are all editable fields in `items/$itemId.tsx`. |
 | **Recipes** | ✅ Done | `inventory/recipes.tsx` exists. |
 | **Suppliers** | ✅ Done | `inventory/suppliers.tsx` — full CRUD with `SupplierFormDialog`. |
 | **Purchase orders** | ✅ Done | `inventory/purchase-orders.tsx` exists. |
@@ -108,12 +108,12 @@
 | **Waste logging** | ✅ Done | `inventory/waste-logs.tsx` exists. |
 | **Stocktake workflow** | ✅ Done | `inventory/stocktakes.tsx` exists. |
 | **Stock adjustment** | ✅ Done | `AdjustStockDialog` in `inventory/index.tsx` — quantity delta + notes, permission-gated. |
-| **Stock transfer** | ❌ Pending | No inter-branch stock transfer UI. |
-| **Stock movement history** | ❌ Pending | No cursor-paginated movement history view per item. |
-| **Temperature log export** | ❌ Pending | No export trigger for temperature logs. |
-| **KDS: item-level mark prepared** | ❌ Pending | `inventory/kds.tsx` exists — needs verification of per-item mark-prepared action. |
-| **KDS: allergen acknowledgement logging** | ❌ Pending | Need to verify the 30-second hard gate and immutable log in `kds.tsx`. |
-| **KDS station filter** | ❌ Pending | No station selector visible in `kds.tsx`. |
+| **Stock transfer** | ✅ Done | `StockTransferDialog` in `inventory/index.tsx` (list row ArrowLeftRight button) and `inventory/items/$itemId.tsx` (Transfer button in header). Backend: `POST /inventory/items/{id}/transfer` + `InventoryService::transfer()` method added. |
+| **Stock movement history** | ✅ Done | `Stock Movements` tab in `items/$itemId.tsx` fetches and displays all movements. Bug fixed: `InventoryService.getMovements()` now unwraps `.data` correctly. |
+| **Temperature log export** | ✅ Done | `TempLogExportPanel` in `inventory/grns.tsx` — date range + CSV/PDF format selector + blob download via `GET /inventory/temperature-logs/export`. |
+| **KDS: item-level mark prepared** | ✅ Done | `TicketItemRow` in `kds.tsx` has Start (→ `in_progress`) and Done (→ `prepared`) buttons wired to `kds.startItem()` / `kds.markItemPrepared()`. |
+| **KDS: allergen acknowledgement logging** | ✅ Done | `AllergenGate` component with 30-second countdown hard-gates the Done button until acknowledged. Calls `kds.acknowledgeAllergen()` → `POST /kds/tickets/{id}/items/{item}/allergen-ack`. |
+| **KDS station filter** | ✅ Done | Station pill filter bar in `kds.tsx` derived from active ticket `station` fields; filters visible tickets. |
 
 ---
 
