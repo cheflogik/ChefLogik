@@ -325,3 +325,70 @@ public function canAccessBranch(Request $request): bool
     return in_array($branchId, $allowed, true);
 }
 ```
+
+---
+
+## Leave Management Authorization
+
+Leave requests use a two-tier access model. Any authenticated staff member can apply; only holders of `staff.manage_leave` can approve or reject.
+
+### Endpoints
+
+```
+GET    /api/v1/staff/leave                           → list requests (own or all, see below)
+POST   /api/v1/staff/leave                           → apply for leave
+PATCH  /api/v1/staff/leave/{leaveRequest}/approve    → approve a pending request
+PATCH  /api/v1/staff/leave/{leaveRequest}/reject     → reject a pending request
+PATCH  /api/v1/staff/leave/{leaveRequest}/cancel     → cancel own pending or approved request
+```
+
+### Authorization rules
+
+| Action | Who may perform it | Backend guard |
+|---|---|---|
+| Apply for leave | Any authenticated staff member | `StoreLeaveRequest::authorize()` — non-null actor |
+| View all leave (team view) | Holders of `staff.manage_leave` | `LeaveController::index` — `$canManage` flag; non-managers receive their own records only |
+| Approve | `staff.manage_leave` | `$this->authorize('staff.manage_leave')` |
+| Reject | `staff.manage_leave` | `$this->authorize('staff.manage_leave')` |
+| Cancel | The request owner only | `LeaveService::cancel` — enforced by `user_id === actor->id` check |
+
+**System roles with `staff.manage_leave`:** `owner`, `branch_manager`.  
+All other system roles (`waiter`, `host`, `head_chef`, etc.) can only apply and cancel their own requests.
+
+### Leave status lifecycle
+
+```
+pending → approved   (manager approves)
+pending → rejected   (manager rejects)
+pending → cancelled  (staff member cancels before decision)
+approved → cancelled (staff member cancels after approval)
+```
+
+Rejected and cancelled requests are terminal — they cannot transition to any other state.
+
+### Data model
+
+`leave_requests` table:
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid | PK |
+| `tenant_id` | uuid | FK tenants — tenant scoped via `HasTenantScope` |
+| `user_id` | uuid | FK users — the staff member applying |
+| `branch_id` | uuid | FK branches — branch the staff member works at |
+| `leave_type` | varchar(20) | `annual` \| `sick` \| `unpaid` \| `other` |
+| `start_date` | date | |
+| `end_date` | date | must be ≥ start_date |
+| `reason` | text | nullable |
+| `status` | varchar(20) | `pending` \| `approved` \| `rejected` \| `cancelled` |
+| `reviewed_by` | uuid | nullable FK users — the manager who decided |
+| `reviewed_at` | timestamp | nullable — set on approve/reject |
+| `notes` | text | nullable — reviewer's note |
+
+### Frontend
+
+- `staff/leave/index.tsx` — two tabs: **My Leave** (all staff) and **Team Leave** (managers only, gated by `staff.manage_leave`)
+- Apply for Leave form: `leave_type` select, `start_date`, `end_date`, optional `reason`
+- Manager review panel: inline Approve / Reject buttons with optional note field
+- Status filter chips: All / Pending / Approved / Rejected / Cancelled
+- `useLeaveStore()` from `stores/context.tsx` — MST store with `fetchLeave`, `applyLeave`, `approveLeave`, `rejectLeave`, `cancelLeave` actions

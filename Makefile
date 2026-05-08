@@ -29,7 +29,7 @@ web-build: ## Build frontend docker image
 	cd web && docker build -t $(WEB_IMAGE) .
 
 web-run: ## Run frontend container (nginx on port 5500)
-	cd web && docker run --name $(WEB_CONTAINER) --env-file ./.env -d -p 5500:5500 $(WEB_IMAGE)
+	cd web && docker run --name $(WEB_CONTAINER) --network shared_network --env-file ./.env -d -p 5500:5500 $(WEB_IMAGE)
 
 web-stop: ## Stop and remove the frontend container
 	docker stop $(WEB_CONTAINER) && docker rm $(WEB_CONTAINER)
@@ -54,3 +54,13 @@ admin-restart: admin-stop admin-build admin-run
 
 admin-shell: ## Open a bash shell in the app container
 	cd admin && docker exec -it $(ADMIN_CONTAINER) bash
+
+# Kubernetes
+api-shell-kube:
+	kubectl exec -it -n cheflogik-api-staging $(kubectl get pods -n cheflogik-api-staging -l app=cheflogik-api -o name) -- /bin/sh
+
+web-shell-kube:
+	kubectl exec -it -n cheflogik-web-staging $(kubectl get pods -n cheflogik-web-staging -l app=cheflogik-web -o name) -- /bin/bash
+
+admin-shell-kube:
+	kubectl exec -it -n cheflogik-admin-staging $(kubectl get pods -n cheflogik-admin-staging -l app=cheflogik-admin -o name) -- /bin/bash
