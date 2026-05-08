@@ -1,6 +1,6 @@
 # Frontend Gaps — Features in Backend Not Yet in UI
 
-> Last audited: 2026-05-08 (Orders module fixed 2026-05-08; Staff Management completed 2026-05-08)
+> Last audited: 2026-05-08 (Orders module fixed 2026-05-08; Staff Management completed 2026-05-08; Menu Management completed 2026-05-08)
 > Method: read every route file in `/web/src/routes` and `/admin/src/routes` against the original gap list.
 > Status key: ✅ Done | ⚠️ Partial | ❌ Pending
 
@@ -50,17 +50,17 @@
 
 | Gap | Status | Detail |
 |---|---|---|
-| **Modifier groups & modifiers** | ❌ Pending | No CRUD for modifier groups or modifiers. |
-| **Branch Overrides tab** | ⚠️ Partial | Per-item branch availability and price override actions exist inline on each row (Enable / Branch Off buttons, `upsertOverride`). No dedicated tab with a full override list. |
-| **Platform Sync tab** | ❌ Pending | No trigger-sync button or last-synced status. |
-| **86 history per item** | ⚠️ Partial | `fetchEightySixHistory` is called and `activeLog` is shown on item row. No separate "View 86 history" page per item. |
-| **Sub-categories CRUD** | ❌ Pending | `AddCategoryForm` / `CategoryRow` handle top-level categories only. No UI for sub-categories via `parent_id`. |
+| **Modifier groups & modifiers** | ✅ Done | `menu/modifier-groups/index.tsx` (list + delete), `menu/modifier-groups/new.tsx` (create with inline modifier rows), `menu/modifier-groups/$groupId.tsx` (edit + replace modifiers). "Modifier Groups" button added to menu index header. |
+| **Branch Overrides tab** | ✅ Done | `BranchOverridesPanel` in `menu/items/$itemId.tsx` — full per-branch price override, available/visible toggles, edit/save/delete for every branch. |
+| **Platform Sync tab** | ✅ Done | `PlatformTab` in `menu/items/$itemId.tsx` (5th tab) — shows Uber Eats and Wolt platform_item_id + last synced_at; inline edit/set/remove per platform, gated by `menu.edit_master`. `MenuService` has `listPlatformMappings`, `upsertPlatformMapping`, `deletePlatformMapping`. Note: trigger-sync-all button blocked by backend (no endpoint exists; sync fires automatically via `SyncMenuItemToPlatformsJob`). |
+| **86 history per item** | ✅ Done | `EightySixPanel` in `menu/items/$itemId.tsx` — branch selector, 86/restore actions, full history table with stockout manager-confirmation gate. |
+| **Sub-categories CRUD** | ✅ Done | `AddCategoryForm` now has optional parent category selector; sidebar renders root categories with children indented (└ glyph). Backend `parent_id` field used throughout. |
 | **Category CRUD** | ✅ Done | `AddCategoryForm` creates categories; `CategoryRow` has inline edit and delete. |
 | **Item edit/add form** | ✅ Done | `menu/items/new.tsx` (create) and `menu/items/$itemId.tsx` (edit) both exist. |
 | **Allergen / dietary flags form** | ✅ Done | Allergen toggles in `menu/items/new.tsx` gated with `auth.can('menu.edit_allergens')`. Also in edit form. |
-| **QR code per branch** | ❌ Pending | No QR code display or download UI. |
-| **Item cost / margin display** | ⚠️ Partial | `cost_price` field exists in new/edit forms. No cost or margin column on the item list for `menu.view_costs` holders. |
-| **Auto-restore mode for 86** | ❌ Pending | No option to select time-based or next-open auto-restore when 86ing an item. |
+| **QR code per branch** | ❌ Blocked | No backend endpoint to generate or retrieve a QR code URL per branch. Defer until backend adds `GET /branches/{id}/qr-code`. |
+| **Item cost / margin display** | ✅ Done | `ItemRow` shows `Cost $X.XX · N% margin` for users with `menu.view_costs`. Margin colour-coded: amber < 20%, green ≥ 60%. |
+| **Auto-restore mode for 86** | ❌ Blocked | `EightySixItemRequest` has no `auto_restore_mode` field; `eighty_six_log` schema has no such column. Defer until backend adds support. |
 
 ---
 
