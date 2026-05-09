@@ -151,7 +151,7 @@
 - [x] Communication preference management
 
 ### Platform admin app (`/admin`) — COMPLETE
-- [x] Standalone Vite app (React 19, TanStack Router, MST, Tailwind v4) at port 5502
+- [x] Standalone Vite app (React 19, TanStack Router, MST, Tailwind v4) at port 5600
 - [x] Split-panel login with 2-step OTP flow
 - [x] Collapsible dark-indigo sidebar (220px / 64px), 4 nav groups, 9 routes
 - [x] Dashboard — KPI cards, MRR area chart, plan distribution, recent sign-ups

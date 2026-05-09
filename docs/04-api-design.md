@@ -633,25 +633,55 @@ POST   /api/v1/analytics/period-close        → requires completed stocktake fo
 
 ### Platform Admin (`/api/platform/`)
 ```
--- Auth
-POST   /api/platform/auth/login
-POST   /api/platform/auth/logout
+-- Auth (unauthenticated)
+POST   /api/platform/auth/login              → Step 1: validate credentials, send OTP email
+                                               Response: { challenge_token, email_hint }
+POST   /api/platform/auth/verify-mfa         → Step 2: verify 6-digit OTP, issue real auth token
+                                               Body: { challenge_token, otp }
+                                               Response: { token, admin: {id,name,email} }
+
+-- Auth (platform guard — auth:platform required)
+POST   /api/platform/auth/logout             → revoke current token (no expiry tokens — explicit revoke only)
+GET    /api/platform/auth/me                 → current admin profile { id, name, email }
 
 -- Tenant management
-GET    /api/platform/tenants
-POST   /api/platform/tenants              → Body: { name, slug, plan_id, owner_name, owner_email, settings? }
-                                            Auto-provisions: 8 system roles + first owner user + welcome email
-                                            Response: { tenant, owner: {id,name,email}, temp_password }
+GET    /api/platform/tenants                 → paginated list; supports ?search=&page=&per_page=
+POST   /api/platform/tenants                 → Body: { name, slug, plan_id, owner_name, owner_email }
+                                               Auto-provisions: 8 system roles + first owner user
+                                               Response: { tenant, owner: {id,name,email}, temp_password }
 GET    /api/platform/tenants/{id}
-PATCH  /api/platform/tenants/{id}
-POST   /api/platform/tenants/{id}/suspend
-POST   /api/platform/tenants/{id}/reactivate
+PATCH  /api/platform/tenants/{id}            → Body: { name?, plan_id?, status?, settings? }
+DELETE /api/platform/tenants/{id}            → soft-cancel (status=cancelled — never hard-delete)
+GET    /api/platform/tenants/{id}/stats      → usage stats: branch_count, active_staff_count, customer_count,
+                                               last_30_days: { order_count, total_revenue },
+                                               upcoming_reservations, upcoming_events, plan info
+POST   /api/platform/tenants/{id}/impersonate → issues 1-hour owner token; writes audit log
+                                               Response: { token, expires_at, user: { id, name, email,
+                                               tenant_id, tenant_name, role_slug, branch_ids, permissions[] } }
+POST   /api/platform/tenants/{id}/suspend    → Body: { reason? }; writes audit log
+POST   /api/platform/tenants/{id}/reactivate → writes audit log
+PATCH  /api/platform/tenants/{id}/settings   → Body: { settings: { key: value } }
+                                               Updates tenant-scoped settings on behalf of tenant
 
 -- Subscription plans
-GET    /api/platform/plans
-POST   /api/platform/plans
-PATCH  /api/platform/plans/{id}
-POST   /api/platform/tenants/{id}/change-plan
+GET    /api/platform/plans                   → list all plans ordered by price_monthly
+GET    /api/platform/plans/{id}              → single plan
+POST   /api/platform/plans                   → Body: { name, slug, max_branches, price_monthly?, features? }
+PATCH  /api/platform/plans/{id}              → Body: { name?, max_branches?, price_monthly?, features?, is_active? }
+POST   /api/platform/tenants/{id}/change-plan → Body: { plan_id }; writes audit log
+
+-- Platform settings (global feature flags + platform config)
+GET    /api/platform/settings                → all platform-scope settings with values, labels, types, defaults
+PATCH  /api/platform/settings                → Body: { settings: { key: value } }
+                                               Keys: platform.maintenance_mode, platform.new_signups_enabled,
+                                               platform.stripe_enabled, platform.default_plan,
+                                               platform.max_api_requests_per_min,
+                                               feature.loyalty_programme, feature.events_module,
+                                               feature.inventory_tracking, feature.kds_display,
+                                               feature.advanced_analytics, feature.api_access,
+                                               feature.multi_branch, feature.white_label,
+                                               feature.uber_eats_integration, feature.sms_notifications,
+                                               feature.shift_management, feature.delivery_optimisation
 ```
 
 ## Broadcasting Auth
