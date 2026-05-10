@@ -75,7 +75,7 @@ Roles and their permissions live in the database, not in code constants. The 8 s
 
 ### 9. 86 propagation timing: two different SLAs
 - Local channels (QR menu, POS, online ordering): 86 must propagate within **5 seconds**
-- Delivery platforms (Uber Eats, DoorDash): 86 must propagate within **60 seconds** (platform API dependent)
+- Delivery platforms (Uber Eats, Wolt): 86 must propagate within **60 seconds** (platform API dependent)
 
 These are different SLAs implemented differently (WebSocket broadcast vs queued platform API call).
 

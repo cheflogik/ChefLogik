@@ -224,7 +224,7 @@ Configure floor plan for the day
 
 Pause / activate delivery platforms
   W: delivery_zones (status = 'paused' / 'active')
-  → job: PlatformStatusJob (critical queue) — calls Uber Eats + DoorDash Store Status API
+  → job: PlatformStatusJob (critical queue) — calls Uber Eats + Wolt Store Status API
   W: audit_log
 ```
 

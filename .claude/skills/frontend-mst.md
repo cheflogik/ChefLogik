@@ -148,7 +148,7 @@ const OrderModel = types
       return !['completed', 'cancelled'].includes(self.status);
     },
     get isDelivery() {
-      return ['uber_eats', 'doordash', 'online'].includes(self.source);
+      return ['uber_eats', 'wolt', 'online'].includes(self.source);
     },
     get elapsedMinutes() {
       return Math.floor((Date.now() - new Date(self.createdAt).getTime()) / 60000);

@@ -2,7 +2,7 @@
 
 ## Order Model Key Fields
 order_ref: ORD-YYYYMMDD-NNNN (unique per tenant)
-source: dine_in_pos | dine_in_qr | takeaway_counter | takeaway_phone | online | uber_eats | doordash
+source: dine_in_pos | dine_in_qr | takeaway_counter | takeaway_phone | online | uber_eats | wolt
 status: OrderStatus enum (9 stages + cancelled)
 items: JSONB array of line items (snapshot at order time — never reference menu table for historical orders)
 platform_commission: stored for net revenue analytics (NOT charged here — informational)

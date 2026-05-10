@@ -17,12 +17,12 @@ The `eighty_six_log.trigger_type` field distinguishes these. Restoration logic m
 
 ## 86 Propagation SLAs
 Local channels (QR menu, POS): within 5 seconds — via Reverb WebSocket broadcast
-Delivery platforms (Uber Eats, DoorDash): within 60 seconds — via queued SyncEightySixToPlatformsJob on 'high' queue
+Delivery platforms (Uber Eats, Wolt): within 60 seconds — via queued SyncEightySixToPlatformsJob on 'high' queue
 
 ## Platform Sync
 Full menu sync on publish (all items pushed to both platforms)
 Incremental sync on: item create, price change, 86, restore, image update
-Internal SKU ↔ platform item_id mapping table required for Uber Eats + DoorDash
+Internal SKU ↔ platform item_id mapping table required for Uber Eats + Wolt
 Price verification on incoming platform orders: if platform price differs from our price by >$0.10, flag the order
 
 ## QR Menu

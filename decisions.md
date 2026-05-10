@@ -67,7 +67,7 @@
 **Repo structure:**
 - `cheflogik` (this repo) — project documentation, CLAUDE.md, decisions.md, docs/, .claude/skills/. Root `.gitignore` ignores `/api` and `/web`.
 - `cheflogik-api` — Laravel 12 backend, lives at `/api` locally
-- `cheflogik-web` — React 18 frontend, lives at `/web` locally
+- `cheflogik-web` — React 19 frontend, lives at `/web` locally
 **CI/CD approach:** Separate pipelines per repo. Deferred to Phase 3.
 
 ---

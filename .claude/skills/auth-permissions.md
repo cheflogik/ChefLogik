@@ -1,5 +1,62 @@
 # Skill: Auth Guards & Permission Checking
 
+## Staff Login — Two-Step OTP/2FA Flow
+
+Login is **always two steps**. No endpoint issues a token directly from credentials.
+
+```
+Step 1 — credentials → challenge
+POST /api/v1/auth/staff/login
+Body: { email, password, tenant_slug }   ← tenant_slug NOT tenant_id
+Response: { challenge_token, email_hint }
+  → OTP emailed to the staff member (6-digit code, 10 min TTL, max 5 attempts)
+
+Step 2 — OTP → token
+POST /api/v1/auth/staff/otp/verify
+Body: { challenge_token, code, mode: "2fa" }
+Response: { token, expires_at, user: { id, name, email, tenant_id, role_slug, branch_ids, permissions } }
+```
+
+The `StaffOtpService` stores the challenge in Redis: key `staff_otp:{challengeToken}`.
+The OTP hash (SHA-256) is compared — never stored in plain text.
+Brute-force guard: after 5 failed attempts the challenge entry is deleted and the user must log in again.
+
+### Password Reset via OTP
+```
+Step 1 — request OTP
+POST /api/v1/auth/staff/otp/send
+Body: { email, tenant_slug }
+Response: { challenge_token, email_hint }   ← always 200 to prevent enumeration
+
+Step 2 — verify OTP
+POST /api/v1/auth/staff/otp/verify
+Body: { challenge_token, code, mode: "reset" }
+Response: { reset_token }   ← short-lived (10 min, Redis key staff_reset_token:{uuid})
+
+Step 3 — set new password
+POST /api/v1/auth/staff/password/reset
+Body: { email, token, password, password_confirmation }
+```
+
+### Other Auth Endpoints
+```
+GET  /api/v1/auth/staff/me      ← return user profile + permissions from current token
+POST /api/v1/auth/staff/refresh ← refresh token (re-reads permissions from DB, returns new token)
+POST /api/v1/auth/staff/logout  ← revoke current token
+```
+
+### Frontend AuthStore Login Flow
+```typescript
+// Step 1: credentials
+const { challenge_token, email_hint } = await auth.startLogin(email, password, tenantSlug)
+// Step 2: show OTP input, then:
+await auth.verifyOtp(challenge_token, otpCode)
+// verifyOtp() calls POST /auth/staff/otp/verify with mode='2fa'
+// On success: stores token, applies user to MST model
+```
+
+---
+
 ## Three Guards — Which One to Use
 ```php
 // In routes/api.php
@@ -62,6 +119,8 @@ See config/permissions.php for the canonical list. Key ones:
 - customers.*: view_basic, view_full, edit, merge, adjust_points, manage_campaigns, gdpr, view_analytics
 - analytics.*: owner_dashboard, branch_dashboard, kitchen_dashboard, events_dashboard, customer_dashboard, revenue_all, revenue_branch, dish_analytics, export, custom_reports, configure_alerts, tax_reports, period_close, audit_log
 - kds.*: view, mark_prepared, acknowledge_allergen
+- messaging.*: access
+- settings.*: edit_tenant, edit_branch, edit_notifications
 
 ## Dynamic Role Builder
 ```php

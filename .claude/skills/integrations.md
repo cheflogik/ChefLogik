@@ -50,7 +50,7 @@ public function handleStripe(Request $request): JsonResponse
 
     return response()->json(['status' => 'accepted']);
 }
-// Same pattern for Uber Eats and DoorDash webhooks
+// Same pattern for Uber Eats and Wolt webhooks
 ```
 
 ## Retry Pattern for External API Calls
@@ -65,7 +65,7 @@ retry(3, function() use ($uberEatsService, $itemId, $available) {
 // On 5xx (server error): retry with backoff
 ```
 
-## Platform Pause (Uber Eats + DoorDash simultaneously)
+## Platform Pause (Uber Eats + Wolt simultaneously)
 ```php
 class PausePlatformsJob implements ShouldQueue
 {
@@ -79,10 +79,10 @@ class PausePlatformsJob implements ShouldQueue
             retry(3, fn() => $this->uberEats->pauseStore(decrypt($uberIntegration->credentials)));
         }
 
-        // DoorDash
-        $ddIntegration = TenantIntegration::active($this->tenantId, 'doordash')->first();
-        if ($ddIntegration) {
-            retry(3, fn() => $this->doorDash->pauseStore(decrypt($ddIntegration->credentials)));
+        // Wolt
+        $woltIntegration = TenantIntegration::active($this->tenantId, 'wolt')->first();
+        if ($woltIntegration) {
+            retry(3, fn() => $this->wolt->pauseStore(decrypt($woltIntegration->credentials)));
         }
 
         // Broadcast to all connected dashboards

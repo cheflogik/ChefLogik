@@ -38,3 +38,26 @@ Labour cost calculated as: (hours_worked × hourly_rate) per staff member per pe
 Hourly rate stored in users.employment JSONB.
 Export as CSV: staff_id, name, role, branch, scheduled_hours, actual_hours, overtime_hours, hourly_rate, gross_pay
 Used by Analytics module for labour_cost % calculations.
+
+## Leave Management
+`leave_requests` table: tenant_id, user_id, branch_id, leave_type, start_date, end_date, reason, status, reviewed_by, reviewed_at, notes
+
+Leave types: `annual` | `sick` | `unpaid` | `other`
+Status machine: `pending` → `approved` | `rejected`; `pending` or `approved` → `cancelled` (owner only)
+
+Permission: `staff.manage_leave` — required for approve/reject. Staff submit their own requests (no permission check on apply).
+
+### API Endpoints
+```
+GET    /api/v1/staff/leave           ← list (managers see all; staff filtered by own user_id)
+POST   /api/v1/staff/leave           ← apply (status: pending; user_id set from auth token)
+PATCH  /api/v1/staff/leave/{id}/approve ← approve (requires staff.manage_leave)
+PATCH  /api/v1/staff/leave/{id}/reject  ← reject  (requires staff.manage_leave)
+DELETE /api/v1/staff/leave/{id}         ← cancel (own request only; pending or approved)
+```
+
+### LeaveService Behaviour
+- `apply()` — sets `user_id` from the authenticated actor; status always starts as `pending`
+- `approve()` / `reject()` — validates current status is `pending`; throws `ValidationException` otherwise; records `reviewed_by` + `reviewed_at`
+- `cancel()` — validates caller is the owner of the request; validates status is `pending` or `approved`
+- In-app notification dispatched on approve/reject: type `staff.leave_approved` or `staff.leave_rejected`

@@ -125,14 +125,8 @@ Manual billing for MVP. `subscription_plans` table exists with Starter/Growth/En
 ### Infrastructure (Decision 5 & 11)
 Docker Compose for app services only. Postgres, Redis, RabbitMQ are on **shared developer infra** — not in Docker Compose. Production deployment uses Jenkins + Terraform (see `docs/07-infrastructure.md`).
 
-### Pending decisions — these block specific work
-| Decision | What it blocks |
-|---|---|
-| **Decision 7** — Payment gateway (Stripe not yet confirmed) | `order_payments`, refund flow, events deposits, Stripe webhooks |
-| **Decision 8** — SMS provider (Twilio not yet confirmed) | Reservation reminders, customer OTP reset, loyalty campaign SMS |
-| **Decision 9** — Email provider (SendGrid not yet confirmed) | Staff/customer password reset email, booking confirmations |
-
-Do not implement any of the blocked work until the relevant decision is recorded in `decisions.md`.
+### Previously pending decisions — all resolved
+Decisions 7 (Stripe), 8 (Twilio), 9 (Amazon SES), and 22 (Wolt replaces DoorDash) are all recorded in `decisions.md`. No pending payment, SMS, email, or delivery-platform decisions remain.
 
 ---
 
@@ -149,10 +143,10 @@ Do not implement any of the blocked work until the relevant decision is recorded
 | Admin frontend | React 19 + TypeScript (strict mode) — `/admin`, port 5600 |
 | Frontend state | MobX-State-Tree (MST) |
 | Auth | Laravel Sanctum (multiple guards) |
-| Payments | Stripe — **PENDING Decision 7** |
-| Delivery platforms | Uber Eats API, DoorDash API |
-| SMS | Twilio — **PENDING Decision 8** |
-| Email | SendGrid — **PENDING Decision 9** |
+| Payments | Stripe (Decision 7 — `stripe/stripe-php ^13.0`, behind `PaymentGatewayInterface`) |
+| Delivery platforms | Uber Eats API, Wolt API (Decision 22) |
+| SMS | Twilio (Decision 8 — `twilio/sdk ^8.0`, behind `SmsProviderInterface`) |
+| Email | Amazon SES via Laravel `ses` driver (Decision 9) |
 | Storage | AWS S3 (`league/flysystem-aws-s3-v3`) |
 | Logging | AWS CloudWatch (`maxbanton/cwh`) |
 | Container | Docker |
@@ -177,7 +171,7 @@ Do not implement any of the blocked work until the relevant decision is recorded
 - `docs/05-auth-roles.md` — three guards, JWT structure, dynamic roles, Gate/Policy pattern
 - `docs/05-access-control.svg` — permission resolution flow diagram
 - `.claude/skills/tenancy.md` — tenant isolation patterns
-- `.claude/skills/auth-permissions.md` — permission checking patterns
+- `.claude/skills/auth-permissions.md` — two-step OTP/2FA login flow, permission checking patterns, all permission slugs
 
 ### When working on the database / migrations
 - `docs/03-database-schema.md` — authoritative schema
@@ -206,7 +200,17 @@ Load the module's skill file and requirement doc:
 
 @.claude/skills/analytics.md
 @docs/modules/analytics.md
+
+@.claude/skills/messaging.md       → when implementing internal staff chat
+                                   → no separate module doc; schema + patterns are in the skill file
+
+@.claude/skills/notifications.md   → when implementing in-app notifications
+                                   → no separate module doc; schema + patterns are in the skill file
 ```
+
+### When working on staff scheduling / leave management
+- `.claude/skills/auth-permissions.md` — `staff.*` permission slugs
+- `docs/modules/staff.md` — shifts, attendance, payroll export, leave management schema and API
 
 ### When working on external integrations
 - `docs/10-integrations.md` — all external API specs

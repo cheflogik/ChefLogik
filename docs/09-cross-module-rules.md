@@ -8,7 +8,7 @@ Rules that span multiple modules. When in doubt, these rules take precedence ove
 
 **Local channels** (QR menu, POS display, online ordering page): 86 must propagate within **5 seconds** via WebSocket broadcast.
 
-**Delivery platforms** (Uber Eats, DoorDash): 86 must propagate within **60 seconds** via queued API call.
+**Delivery platforms** (Uber Eats, Wolt): 86 must propagate within **60 seconds** via queued API call.
 
 ```php
 // When an 86 event is created:

@@ -62,15 +62,21 @@ class SyncMenuItemToPlatformsJob implements ShouldQueue
     public int $tries = 3;
     public array $backoff = [5, 30, 120];  // seconds
 
-    public function handle(UberEatsService $uber, DoorDashService $dd): void
+    public function handle(UberEatsService $uber, WoltService $wolt): void
     {
-        $integration = TenantIntegration::forTenant($this->tenantId)
+        $uberIntegration = TenantIntegration::forTenant($this->tenantId)
             ->where('integration_type', 'uber_eats')->first();
 
-        if ($integration?->is_active) {
-            $uber->updateItem($this->item, $integration->credentials);
+        if ($uberIntegration?->is_active) {
+            $uber->updateItem($this->item, $uberIntegration->credentials);
         }
-        // Same for DoorDash
+
+        $woltIntegration = TenantIntegration::forTenant($this->tenantId)
+            ->where('integration_type', 'wolt')->first();
+
+        if ($woltIntegration?->is_active) {
+            $wolt->updateItem($this->item, $woltIntegration->credentials);
+        }
     }
 }
 ```
