@@ -448,7 +448,7 @@ hire_fee, description, amenities (JSONB), is_active
 
 ### events
 ```sql
-id, tenant_id, branch_id (FK), space_id (FK), customer_profile_id (FK), organiser_name,
+id, tenant_id, branch_id (FK), space_id (FK), customer_profile_id (FK), title (nullable), organiser_name,
 organiser_email, organiser_phone, corporate_account_id (FK nullable),
 occasion_type, event_date, start_time, end_time, guest_count, status (ENUM enquiry/proposal/confirmed/pre_event/day_of/completed/cancelled),
 package_id (FK nullable), custom_menu (JSONB), minimum_spend, actual_spend,
