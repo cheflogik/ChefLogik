@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Cheflogik · Aubergine — Customer Landing</title>
+<meta name="viewport" content="width=1440" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,300..700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#f0eee9;font-family:'Plus Jakarta Sans', system-ui, sans-serif}
+  .dc-iframe{display:block;width:100%;height:100%;border:none;background:#0a0908}
+  .phone{
+    position:relative;width:100%;height:100%;background:#000;
+    border-radius:48px;padding:14px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.35), 0 0 0 1.5px #2a2620 inset, 0 0 0 4px #0d0c0a inset;
+  }
+  .phone .screen{
+    width:100%;height:100%;border-radius:36px;overflow:hidden;background:#0a0908;
+    position:relative;
+  }
+  .phone .notch{
+    position:absolute;left:50%;top:18px;transform:translateX(-50%);
+    width:120px;height:30px;background:#000;border-radius:18px;z-index:5;
+  }
+  .phone .status{
+    position:absolute;top:18px;left:30px;right:30px;height:30px;display:flex;justify-content:space-between;align-items:center;
+    color:#ede4d3;font-size:13px;font-weight:600;letter-spacing:.02em;z-index:6;pointer-events:none;font-family:'Plus Jakarta Sans',system-ui;
+  }
+  .phone .status .l{padding-left:6px}
+  .phone .status .r{display:flex;gap:6px;align-items:center;padding-right:6px}
+  .phone iframe{display:block;width:100%;height:100%;border:none;background:#0a0908}
+  .phone .home{
+    position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+    width:120px;height:4px;background:rgba(255,255,255,.35);border-radius:3px;z-index:5;
+  }
+  .post{
+    background:#fef4a8;color:#5a4a2a;padding:24px;font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+    line-height:1.55;font-size:14px;height:100%;box-sizing:border-box;overflow:auto;
+    box-shadow: 0 8px 22px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.04);
+  }
+  .post h4{margin:0 0 8px;font-size:12px;letter-spacing:.32em;text-transform:uppercase;font-weight:700;opacity:.7}
+  .post b{font-weight:700}
+  .post p{margin:0 0 10px}
+  .post ul{margin:0 0 10px 18px;padding:0}
+  .post li{margin-bottom:4px}
+  .swatch{display:inline-flex;gap:6px;margin-top:6px}
+  .swatch span{width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.1) inset}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" data-presets="env,react">
+const Frame = ({ src }) => (
+  <iframe className="dc-iframe" src={src} loading="lazy" allow="clipboard-read; clipboard-write" />
+);
+
+// Phone bezel — wraps a mobile iframe in a glass screen with status + home indicator
+const Phone = ({ src, status="9:41", carrier="aubergine · 5G" }) => (
+  <div className="phone">
+    <div className="screen">
+      <div className="notch" />
+      <div className="status">
+        <span className="l">{status}</span>
+        <span className="r">
+          <span>5G</span>
+          <svg width="20" height="11" viewBox="0 0 24 14" fill="currentColor"><rect x="1" y="1" width="19" height="12" rx="2.5" ry="2.5" fill="none" stroke="currentColor" strokeWidth="1.2"/><rect x="3" y="3" width="14" height="8" rx="1" fill="currentColor"/><rect x="21" y="4.5" width="1.5" height="5" rx="0.5" fill="currentColor"/></svg>
+        </span>
+      </div>
+      <iframe src={src} />
+      <div className="home" />
+    </div>
+  </div>
+);
+
+function Brief(){
+  return (
+    <div className="post">
+      <h4>Brief — Aubergine Landing</h4>
+      <p><b>Client:</b> Cheflogik · multi-tenant SaaS</p>
+      <p><b>Brand:</b> Aubergine — Léo Marchand · 12-course contemporary tasting · Red Hook waterfront</p>
+      <p><b>Mood:</b> Dark + moody fine-dining (Fidalgo). Plus Jakarta Sans throughout.</p>
+      <p><b>3 directions, side-by-side.</b> Each is a working clickable prototype. Logged-in state is on by default to show loyalty + reorder.</p>
+      <ul>
+        <li><b>i. Maison</b> — centered, symmetrical, antique gold</li>
+        <li><b>ii. Editorial</b> — asymmetric magazine, oxblood</li>
+        <li><b>iii. Cinematic</b> — full-bleed, copper ember, horizontal scrolls</li>
+      </ul>
+      <p style={{marginTop:14,fontSize:12,opacity:.75}}>Imagery is striped placeholder — real food / room photography goes there at handoff.</p>
+    </div>
+  );
+}
+
+function PaletteCard({ name, accent, bg, text, cream }){
+  return (
+    <div className="post" style={{background:bg,color:cream}}>
+      <h4 style={{color:accent,opacity:1}}>— {name} —</h4>
+      <p style={{color:cream,opacity:.85}}>
+        Plus Jakarta Sans · weights tuned per variant. <b style={{color:accent}}>Same data</b>, three voices.
+      </p>
+      <div className="swatch">
+        <span style={{background:bg}}/>
+        <span style={{background:text}}/>
+        <span style={{background:accent}}/>
+        <span style={{background:cream}}/>
+      </div>
+      <p style={{marginTop:14,fontSize:11,letterSpacing:".22em",textTransform:"uppercase",color:accent,fontWeight:700,opacity:.9}}>
+        Accent · {accent}
+      </p>
+    </div>
+  );
+}
+
+function App(){
+  return (
+    <DesignCanvas>
+      <DCSection id="brief" title="Aubergine · Customer Landing" subtitle="Cheflogik tenant — three desktop directions + mobile companions">
+        <DCArtboard id="brief" label="Brief" width={360} height={420}>
+          <Brief />
+        </DCArtboard>
+        <DCArtboard id="p1" label="i · Maison palette" width={300} height={260}>
+          <PaletteCard name="Maison" accent="#c9a961" bg="#0a0908" text="#1a1612" cream="#ede4d3" />
+        </DCArtboard>
+        <DCArtboard id="p2" label="ii · Editorial palette" width={300} height={260}>
+          <PaletteCard name="Editorial" accent="#b13449" bg="#100a0c" text="#1f1418" cream="#f1e7d6" />
+        </DCArtboard>
+        <DCArtboard id="p3" label="iii · Cinematic palette" width={300} height={260}>
+          <PaletteCard name="Cinematic" accent="#d9893c" bg="#08070a" text="#16120e" cream="#e3d6bf" />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="desktop" title="Desktop · 1440" subtitle="Single-page interactive prototype · click an artboard's expand icon to view full-screen">
+        <DCArtboard id="v1-desktop" label="i · Maison — centered luxury" width={1440} height={2200}>
+          <Frame src="v1-maison.html" />
+        </DCArtboard>
+        <DCArtboard id="v2-desktop" label="ii · Editorial — magazine grid" width={1440} height={2200}>
+          <Frame src="v2-editorial.html" />
+        </DCArtboard>
+        <DCArtboard id="v3-desktop" label="iii · Cinematic — full-bleed" width={1440} height={2200}>
+          <Frame src="v3-cinematic.html" />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="mobile" title="Mobile · 390 · iPhone" subtitle="Same data, condensed for the phone. Cart sheet slides from bottom; FAB appears after first add.">
+        <DCArtboard id="v1-mobile" label="i · Maison — mobile" width={430} height={880}>
+          <Phone src="mobile-maison.html" />
+        </DCArtboard>
+        <DCArtboard id="v2-mobile" label="ii · Editorial — mobile" width={430} height={880}>
+          <Phone src="mobile-editorial.html" />
+        </DCArtboard>
+        <DCArtboard id="v3-mobile" label="iii · Cinematic — mobile" width={430} height={880}>
+          <Phone src="mobile-cinematic.html" />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="notes" title="Notes" subtitle="Implementation pointers for the Vite / MST build">
+        <DCArtboard id="impl" label="Implementation" width={360} height={420}>
+          <div className="post">
+            <h4>Implementation map</h4>
+            <p><b>Stack:</b> Vite + React 19 + TS strict, MST stores, TanStack Router. TailwindCSS for utilities; design tokens as CSS variables (already namespaced — see <code>shared/mobile.css</code>).</p>
+            <ul>
+              <li><b>Models:</b> Restaurant, MenuCategory, MenuItem, EightySixStatus, Cart, AuthUser, LoyaltyAccount, Branch, Offer</li>
+              <li><b>Reverb topic:</b> <code>tenant.{`{`}id{`}`}.menu.eighty-six</code> drives the red 86 tag &amp; ETA badge live</li>
+              <li><b>Login flow:</b> email/password → tenant select (Red Hook / Tribeca) → JWT with tenant_id → reload</li>
+              <li><b>Routes:</b> <code>/</code> landing · <code>/menu</code> browse · <code>/menu/:id</code> item detail · <code>/cart</code></li>
+              <li><b>Out of scope:</b> checkout / payment (orders API not wired yet, per brief)</li>
+            </ul>
+            <p style={{marginTop:14,fontSize:12,opacity:.75}}>All three directions share the same component tree — only theme tokens + a few layout breakpoints differ.</p>
+          </div>
+        </DCArtboard>
+        <DCArtboard id="states" label="States covered" width={360} height={420}>
+          <div className="post">
+            <h4>States covered in mocks</h4>
+            <ul>
+              <li>Logged-out hero CTA → sign-in modal → tenant select → logged-in</li>
+              <li>Logged-in salon (points, tier progress, reorder, favorites)</li>
+              <li>Add-to-cart toast → FAB appears (mobile) / badge bumps (desktop)</li>
+              <li>Cart drawer / bottom-sheet open/close</li>
+              <li>Item detail modal · size + wine-pairing customization · quantity</li>
+              <li>Menu search · diet filter · sort · sticky category nav</li>
+              <li><b>86 status</b> — out-of-stock tag with reason + ETA on Garden Martini &amp; Smoked celeriac</li>
+              <li>Empty cart state</li>
+            </ul>
+          </div>
+        </DCArtboard>
+        <DCArtboard id="opens" label="Open questions" width={360} height={420}>
+          <div className="post">
+            <h4>Open for review</h4>
+            <ul>
+              <li>Which of the three lands the brand best? Happy to pick a winner and iterate.</li>
+              <li>Imagery treatment: in-house photo, food-only, or rotating cover?</li>
+              <li>Reservation flow — push to existing reservations module or build inline?</li>
+              <li>Mobile bottom-tab nav (home / menu / orders / account)?</li>
+              <li>Sign-in: magic-link option in addition to password?</li>
+            </ul>
+          </div>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
