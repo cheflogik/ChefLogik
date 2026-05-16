@@ -297,6 +297,8 @@ Load the module's skill file and requirement doc:
 - External integrations (Uber Eats, Wolt, Twilio, Amazon SES)
 - Jenkins pipelines + Terraform deployment (staging + production)
 
+> **Course tracking (deferred):** The occupied table popup on the floor view shows a placeholder "Course: —". This requires adding `current_course` (enum: starters|mains|desserts) to the `orders` table and a UI control for staff to bump the course on the floor view. Implement when KDS course tracking is prioritised.
+
 ---
 
 ## 7. Coding Standards Summary
@@ -322,5 +324,6 @@ Load the module's skill file and requirement doc:
 - Props typed with TypeScript interfaces — no `any`
 - `authStore.can('permission.slug')` before rendering any privileged UI
 - API calls go through the typed `ApiService` class — no direct `fetch` in components
+- **Form elements in `/web`:** never use raw `<button>`, `<input>`, `<select>`, `<textarea>`, or `<checkbox>` — always use the design system components from `@/components/ui/` (e.g. `Button`, `IconButton`, `Input`, `Select`, `Textarea`, `Checkbox`, `Switch`, `NumberInput`, `DatePicker`, etc.). This applies when building new forms and when modifying existing ones.
 
 **Full standards in `docs/02-tech-stack.md`.**

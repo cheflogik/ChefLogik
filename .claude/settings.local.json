@@ -32,7 +32,8 @@
       "Bash(docker build *)",
       "Bash(docker exec *)",
       "Bash(xargs cat *)",
-      "Bash(xargs sed -n '140,200p')"
+      "Bash(xargs sed -n '140,200p')",
+      "Bash(python3 *)"
     ]
   }
 }
