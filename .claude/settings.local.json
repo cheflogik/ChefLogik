@@ -33,7 +33,8 @@
       "Bash(docker exec *)",
       "Bash(xargs cat *)",
       "Bash(xargs sed -n '140,200p')",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(./vendor/bin/pint app/Models/MenuItem.php app/Models/MenuItemNutrition.php app/Models/MenuCategory.php app/Enums/ItemBadge.php app/Http/Resources/Menu/MenuItemResource.php app/Http/Resources/Menu/MenuItemNutritionResource.php app/Http/Requests/Menu/UploadMenuItemPhotoRequest.php app/Http/Requests/Menu/UploadMenuCategoryPhotoRequest.php app/Http/Requests/Menu/UpsertMenuItemNutritionRequest.php app/Services/Menu/MenuItemService.php app/Services/Menu/MenuCategoryService.php app/Http/Controllers/Api/V1/Menu/MenuItemController.php app/Http/Controllers/Api/V1/Menu/MenuCategoryController.php)"
     ]
   }
 }

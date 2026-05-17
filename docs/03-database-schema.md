@@ -213,34 +213,61 @@ INDEX (tenant_id, user_id, clock_in_at DESC)
 
 ### menu_categories
 ```sql
-id, tenant_id, name, slug, parent_id (FK self), sort_order, is_active, created_at, updated_at
+id, tenant_id, name, slug, photo_url (full public S3 URL), parent_id (FK self), sort_order, is_active, created_at, updated_at
 INDEX (tenant_id, parent_id)
 ```
 
 ### menu_items
 ```sql
-id              UUID PRIMARY KEY DEFAULT gen_random_uuid()
-tenant_id       UUID NOT NULL FK → tenants
-category_id     UUID NOT NULL FK → menu_categories
-sku             VARCHAR(100) NOT NULL
-name            VARCHAR(255) NOT NULL
-description     TEXT
-base_price      DECIMAL(10,2) NOT NULL
-cost_price      DECIMAL(10,2)                  -- WAC-derived, updated by inventory
-tax_category    VARCHAR(50) DEFAULT 'standard'
-allergens       JSONB DEFAULT '[]'             -- ['gluten','dairy','nuts',...]
-dietary_flags   JSONB DEFAULT '{}'             -- { vegan, vegetarian, gluten_free, halal, kosher }
-photo_url       VARCHAR(500)
-prep_time_mins  SMALLINT
-is_active       BOOLEAN DEFAULT true
-is_master       BOOLEAN DEFAULT true           -- false = branch-exclusive item
-sort_order      SMALLINT DEFAULT 0
-created_at      TIMESTAMPTZ
-updated_at      TIMESTAMPTZ
+id                UUID PRIMARY KEY DEFAULT gen_random_uuid()
+tenant_id         UUID NOT NULL FK → tenants
+category_id       UUID NOT NULL FK → menu_categories
+sku               VARCHAR(100) NOT NULL
+name              VARCHAR(255) NOT NULL
+short_description VARCHAR(255)                   -- one-line summary for menu cards
+description       TEXT
+badge             VARCHAR(50)                    -- enum: new, popular, chef_pick, seasonal, limited
+kitchen_notes     TEXT                           -- internal KDS notes, not shown to customers
+base_price        DECIMAL(10,2) NOT NULL
+cost_price        DECIMAL(10,2)                  -- WAC-derived, updated by inventory
+tax_category      VARCHAR(50) DEFAULT 'standard'
+allergens         JSONB DEFAULT '[]'             -- ['gluten','dairy','nuts',...]
+dietary_flags     JSONB DEFAULT '{}'             -- { vegan, vegetarian, gluten_free, halal, kosher }
+photo_url         VARCHAR(500)                   -- full public S3 URL
+prep_time_mins    SMALLINT
+available_from    TIME                           -- null = no time restriction
+available_until   TIME
+available_days    JSONB DEFAULT '[0,1,2,3,4,5,6]' -- array of weekday ints (0=Sun, 6=Sat)
+is_active         BOOLEAN DEFAULT true
+is_master         BOOLEAN DEFAULT true           -- false = branch-exclusive item
+sort_order        SMALLINT DEFAULT 0
+created_at        TIMESTAMPTZ
+updated_at        TIMESTAMPTZ
 
 UNIQUE (tenant_id, sku)
 INDEX (tenant_id, category_id, is_active)
 INDEX (tenant_id, is_master)
+```
+
+### menu_item_nutrition
+```sql
+id            UUID PRIMARY KEY DEFAULT gen_random_uuid()
+tenant_id     UUID NOT NULL FK → tenants
+menu_item_id  UUID NOT NULL FK → menu_items   -- UNIQUE: one row per item
+serving_size  DECIMAL(8,2)
+serving_unit  VARCHAR(50)                      -- 'g', 'ml', 'oz', 'per serving'
+calories      SMALLINT
+protein_g     DECIMAL(6,2)
+carbs_g       DECIMAL(6,2)
+fat_g         DECIMAL(6,2)
+fiber_g       DECIMAL(6,2)
+sodium_mg     DECIMAL(8,2)
+sugar_g       DECIMAL(6,2)
+created_at    TIMESTAMPTZ
+updated_at    TIMESTAMPTZ
+
+UNIQUE (menu_item_id)
+INDEX (tenant_id, menu_item_id)
 ```
 
 ### menu_item_branch_overrides
