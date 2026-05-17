@@ -30,6 +30,7 @@ terraform/
 | `cheflogik-api` | `ghcr.io/dishuoberoi/cheflogik-api` | GHCR |
 | `cheflogik-web` | `ghcr.io/dishuoberoi/cheflogik-web` | GHCR |
 | `cheflogik-admin` | `ghcr.io/dishuoberoi/cheflogik-admin` | GHCR |
+| `cheflogik-landing` | `ghcr.io/dishuoberoi/cheflogik-landing` | GHCR |
 
 ### API image (`cheflogik-api`)
 
@@ -73,6 +74,17 @@ Same two-stage pattern as the web image:
 **Important:** `VITE_*` environment variables (`VITE_API_URL`, `VITE_STAFF_APP_URL`) are baked in at build time.
 
 Exposed port: **8080**.
+
+### Landing image (`cheflogik-landing`)
+
+Same two-stage pattern:
+
+1. **builder** (`node:20-alpine`) — `npm run build` compiles the landing Vite app
+2. **production** (`nginx:alpine`) — Nginx serves the static `dist/` assets
+
+**Important:** `VITE_API_URL` is baked in at build time as a build arg. No `VITE_REVERB_*` needed — the landing app has no WebSocket.
+
+Exposed port: **5700** (Nginx listens on the app's Vite port for consistency with local dev).
 
 ---
 
@@ -126,6 +138,16 @@ The shared library handles:
 | `healthCheckPath` | `/health` |
 | `clearCache` | `false` |
 
+### Landing pipeline parameters
+
+| Parameter | Value |
+|---|---|
+| `appName` | `cheflogik-landing` |
+| `imageRepo` | `dishuoberoi/cheflogik-landing` |
+| `enableMigrations` | `false` |
+| `healthCheckPath` | `/health` |
+| `clearCache` | `false` |
+
 ---
 
 ## Terraform Deployment Config (YAML)
@@ -171,10 +193,10 @@ web:            # Nginx container — resources, HPA, health probes
 
 ## Environments and Domains
 
-| Environment | API                         | Staff app                   | Admin app                     |
-|---|-----------------------------|-----------------------------|-------------------------------|
-| Staging | `api-staging.cheflogik.com` | `app-staging.cheflogik.com` | `admin-staging.cheflogik.com` |
-| Production | `api.cheflogik.com`         | `app.cheflogik.com`         | `admin.cheflogik.com`         |
+| Environment | API | Staff app | Admin app | Landing app |
+|---|---|---|---|---|
+| Staging | `api-staging.cheflogik.com` | `app-staging.cheflogik.com` | `admin-staging.cheflogik.com` | `landing-staging.cheflogik.com` |
+| Production | `api.cheflogik.com` | `app.cheflogik.com` | `admin.cheflogik.com` | `landing.cheflogik.com` |
 
 TLS certificates are provisioned automatically by cert-manager:
 - Staging: `letsencrypt-staging` issuer

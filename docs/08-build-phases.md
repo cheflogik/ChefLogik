@@ -121,13 +121,14 @@
 - [x] Hourly aggregation jobs (RabbitMQ workers — Decision 10, Horizon not used)
 - [x] Daily aggregation jobs (scheduler)
 - [x] Weekly RFM recalculation job
-- [ ] Monthly CLV + tier recalculation job
+- [ ] Monthly CLV + tier recalculation job (CLV formula not yet implemented)
 - [x] 5 role-appropriate dashboards
 - [x] Menu engineering matrix (Stars/Plowhorses/Puzzles/Dogs)
 - [x] Churn risk detection + churn risk list
 - [x] PDF export (dompdf/browsershot) + CSV export
 - [ ] Scheduled report delivery (Amazon SES — Decision 9)
-- [x] Tax/VAT reporting
+- [ ] Tax collected report endpoint (net_sales, tax_rate, tax_amount per category per period)
+- [ ] RevPASH calculation respecting special operating hours
 - [x] Financial period close
 - [x] Audit log viewer
 
@@ -136,10 +137,10 @@
 - [x] Permission group UI (grouped by module with toggle switches)
 - [x] Role assignment to staff members
 
-### External integrations (production)
+### External integrations (production) — ALL COMPLETE
 - [x] Uber Eats: full menu sync + order management + store status
 - [x] Wolt: full menu sync + order management + store status (Decision 22: Wolt replaces DoorDash)
-- [ ] Twilio: SMS delivery + STOP opt-out sync
+- [x] Twilio: SMS delivery + STOP opt-out sync (SmsProviderInterface + NullSmsProvider for local dev)
 - [x] Amazon SES: transactional + marketing emails (Decision 9)
 - [x] Platform throttle (pause delivery platforms from dashboard)
 
@@ -166,6 +167,18 @@
 - [x] Cross-app impersonation (URL params → staff app reads on load)
 - [x] `PlatformStore` singleton (no RootStore); rehydrates from `cl_admin_token`
 
+### Landing / customer website app (`/landing`) — COMPLETE (Decision 23)
+- [x] Standalone Vite app (React 19, TanStack Router, MST) at port 5700
+- [x] Three visual templates: `v1-maison` (upscale dark), `v2-editorial` (magazine), `v3-cinematic` (full-bleed)
+- [x] Template selection driven by `landing_template_settings.template` per tenant
+- [x] `LandingConfigStore` — fetches template, customCss, contentBlocks, socialFeeds, featuredItems, SEO config
+- [x] Customer auth (login/register) using `customer` guard — token stored as `landing_token`
+- [x] Account area: loyalty balance, order history
+- [x] `I18nStore` multilanguage support — `t()` helper, 8 supported locales, `LanguageSwitcher` component (Decision 25)
+- [x] `CartStore` — in-memory cart, submits to online order endpoint
+- [x] Production deployment: `ghcr.io/dishuoberoi/cheflogik-landing`, `landing.cheflogik.com`
+- [x] Jenkinsfile + `terraform/staging.yaml` + `terraform/production.yaml`
+
 ### Production deployment (Jenkins + Terraform)
 - [x] Dockerfile — API (multi-stage: Composer vendor + PHP-FPM/Nginx/Supervisor)
 - [x] Dockerfile — Web (multi-stage: Node/Vite build + Nginx static)
@@ -179,8 +192,12 @@
 - [x] Jenkinsfile — Admin (shared library: build, scan, push, terraform deploy)
 - [x] terraform/staging.yaml — Admin
 - [x] terraform/production.yaml — Admin
+- [x] Dockerfile — Landing (multi-stage: Node/Vite build + Nginx static)
+- [x] Jenkinsfile — Landing (shared library: build, scan, push, terraform deploy)
+- [x] terraform/staging.yaml — Landing
+- [x] terraform/production.yaml — Landing
 - [ ] Infisical project created + project IDs filled in staging/production YAMLs
-- [ ] Jenkins pipelines configured for cheflogik-api, cheflogik-web, and cheflogik-admin repos
+- [ ] Jenkins pipelines configured for all four repos
 - [ ] Staging environment verified end-to-end
 
 ### Acceptance criteria for Phase 3

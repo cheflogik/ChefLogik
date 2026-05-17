@@ -17,16 +17,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Project State
 
-**This repository is the documentation/planning repo. No application code exists here.**
+**This repository is the documentation/planning repo. Four application repos exist locally.**
 
-- All 21 architectural decisions are locked in `decisions.md`
+- All 22 architectural decisions are locked in `decisions.md`
 - Database schema is fully specified in `docs/03-database-schema.md` (with all DBA improvements applied)
 - API design is fully specified in `docs/04-api-design.md`
-- Application code lives in three separate repos:
+- Application code lives in four separate repos:
   - `cheflogik-api` — Laravel 12 backend (at `/api` locally, own git repo)
   - `cheflogik-web` — React 19 staff-facing frontend (at `/web` locally, own git repo)
   - `cheflogik-admin` — React 19 platform admin app (at `/admin` locally, own git repo)
-- The `/api`, `/web`, and `/admin` directories are ignored by this repo's git
+  - `cheflogik-landing` — React 19 customer-facing website per restaurant (at `/landing` locally, own git repo)
+- The `/api`, `/web`, `/admin`, and `/landing` directories are ignored by this repo's git
+
+**Outstanding known gaps** (not yet implemented — see `NextSteps.md` for full detail):
+- Reservations: No-show deposit requirement flag; loyalty member no-show forgiveness
+- Customers: Event 2× loyalty multiplier; 30-day downgrade grace period warning; 12-month points expiry warning; manual profile merge endpoint
+- Analytics: CLV formula; COGS finalisation; tax collected report; RevPASH with special hours
 
 **Before writing any code:** read `decisions.md` in full, then read the relevant module docs and skill files.
 
@@ -34,9 +40,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-> Commands below apply to `cheflogik-api` (Laravel). Run from within the `/api` directory.
-
-### Laravel (Backend)
+### Laravel (Backend) — run from `/api`
 ```bash
 composer install                                    # install PHP dependencies
 php artisan migrate                                 # run migrations against main DB
@@ -59,7 +63,7 @@ docker compose logs -f app     # tail application logs
 docker compose logs -f worker-critical
 ```
 
-### React — Staff app (run from `/web` directory)
+### React — Staff app (run from `/web`)
 ```bash
 npm install
 npm run dev                    # Vite dev server (port 5500)
@@ -68,10 +72,18 @@ npm run test                   # Vitest
 npm run lint                   # ESLint
 ```
 
-### React — Admin app (run from `/admin` directory)
+### React — Admin app (run from `/admin`)
 ```bash
 npm install
 npm run dev                    # Vite dev server (port 5600)
+npm run build                  # production build
+npm run lint                   # ESLint
+```
+
+### React — Landing app (run from `/landing`)
+```bash
+npm install
+npm run dev                    # Vite dev server (port 5700)
 npm run build                  # production build
 npm run lint                   # ESLint
 ```
@@ -105,7 +117,7 @@ All requirements have been fully documented across 12 requirement documents. The
 
 ## 2. Key Architectural Decisions
 
-All 21 decisions are locked in `decisions.md`. The non-obvious ones that affect day-to-day code are summarised here.
+All 22 decisions are locked in `decisions.md`. The non-obvious ones that affect day-to-day code are summarised here.
 
 ### Tenancy (Decision 1)
 Single database, `tenant_id` on every table. **Manual** `TenantScope` + `HasTenantScope` trait — `stancl/tenancy` is **not used**. Platform-admin bypass: `withoutGlobalScope(TenantScope::class)` only in `Platform/` controllers.
@@ -125,6 +137,12 @@ Manual billing for MVP. `subscription_plans` table exists with Starter/Growth/En
 ### Infrastructure (Decision 5 & 11)
 Docker Compose for app services only. Postgres, Redis, RabbitMQ are on **shared developer infra** — not in Docker Compose. Production deployment uses Jenkins + Terraform (see `docs/07-infrastructure.md`).
 
+### Staff login (auth-permissions.md)
+Login is always **two-step OTP**. Step 1: credentials → challenge token + OTP emailed. Step 2: OTP → Sanctum token. See `.claude/skills/auth-permissions.md` for the full flow.
+
+### Landing app (Decision 23)
+Each tenant gets a customer-facing website at `landing.cheflogik.com/[tenant-slug]`. Built as a separate React app (`/landing`, port 5700). Three visual templates configurable per tenant via `landing_template_settings`.
+
 ### Previously pending decisions — all resolved
 Decisions 7 (Stripe), 8 (Twilio), 9 (Amazon SES), and 22 (Wolt replaces DoorDash) are all recorded in `decisions.md`. No pending payment, SMS, email, or delivery-platform decisions remain.
 
@@ -141,16 +159,17 @@ Decisions 7 (Stripe), 8 (Twilio), 9 (Amazon SES), and 22 (Wolt replaces DoorDash
 | Real-time | Laravel Reverb (self-hosted WebSocket) |
 | Staff frontend | React 19 + TypeScript (strict mode) — `/web`, port 5500 |
 | Admin frontend | React 19 + TypeScript (strict mode) — `/admin`, port 5600 |
+| Landing frontend | React 19 + TypeScript (strict mode) — `/landing`, port 5700 |
 | Frontend state | MobX-State-Tree (MST) |
 | Auth | Laravel Sanctum (multiple guards) |
-| Payments | Stripe (Decision 7 — `stripe/stripe-php ^13.0`, behind `PaymentGatewayInterface`) |
+| Payments | Stripe (Decision 7 — `stripe/stripe-php ^20`, behind `PaymentGatewayInterface`) |
 | Delivery platforms | Uber Eats API, Wolt API (Decision 22) |
 | SMS | Twilio (Decision 8 — `twilio/sdk ^8.0`, behind `SmsProviderInterface`) |
 | Email | Amazon SES via Laravel `ses` driver (Decision 9) |
 | Storage | AWS S3 (`league/flysystem-aws-s3-v3`) |
 | Logging | AWS CloudWatch (`maxbanton/cwh`) |
 | Container | Docker |
-| Orchestration | Kubernetes (via shared Terraform module) |
+| Orchestration | Kubernetes (via shared Terraform module — see `docs/07-infrastructure.md`) |
 | Infrastructure as code | Terraform + Jenkins CI/CD |
 | Tenancy | Manual `TenantScope` + `HasTenantScope` trait (no stancl/tenancy) |
 
@@ -163,19 +182,19 @@ Decisions 7 (Stripe), 8 (Twilio), 9 (Amazon SES), and 22 (Wolt replaces DoorDash
 ### Before writing any code
 1. This file (`CLAUDE.md`) — understand the decisions summary in Section 2
 2. `decisions.md` — read in full; record any new decisions here before proceeding
-3. `docs/01-project-overview.md` — business context and non-negotiable rules
-4. `docs/02-tech-stack.md` — Laravel/React conventions and folder structure
-5. `docs/03-database-schema.md` — all tables, columns, indexes
+3. `NextSteps.md` — known outstanding gaps and integration status
+4. `docs/01-project-overview.md` — business context and non-negotiable rules
+5. `docs/02-tech-stack.md` — Laravel/React conventions and folder structure
+6. `docs/03-database-schema.md` — all tables, columns, indexes
 
 ### When working on authentication/permissions
 - `docs/05-auth-roles.md` — three guards, JWT structure, dynamic roles, Gate/Policy pattern
-- `docs/05-access-control.svg` — permission resolution flow diagram
 - `.claude/skills/tenancy.md` — tenant isolation patterns
-- `.claude/skills/auth-permissions.md` — two-step OTP/2FA login flow, permission checking patterns, all permission slugs
+- `.claude/skills/auth-permissions.md` — **two-step OTP/2FA login flow**, permission checking patterns, all permission slugs
 
 ### When working on the database / migrations
 - `docs/03-database-schema.md` — authoritative schema
-- `docs/03-database-erd.svg` — entity relationships visual
+- `.claude/skills/fix-migrations.md` — how to consolidate secondary migrations
 
 ### When working on a specific module
 Load the module's skill file and requirement doc:
@@ -202,10 +221,13 @@ Load the module's skill file and requirement doc:
 @docs/modules/analytics.md
 
 @.claude/skills/messaging.md       → when implementing internal staff chat
-                                   → no separate module doc; schema + patterns are in the skill file
+@docs/modules/messaging.md
 
 @.claude/skills/notifications.md   → when implementing in-app notifications
-                                   → no separate module doc; schema + patterns are in the skill file
+@docs/modules/notifications.md
+
+@.claude/skills/landing.md         → when implementing the customer-facing landing website
+@docs/modules/landing.md
 ```
 
 ### When working on staff scheduling / leave management
@@ -218,7 +240,6 @@ Load the module's skill file and requirement doc:
 
 ### When working on the staff frontend (`/web`)
 - `docs/06-frontend-architecture.md` — React + MST conventions
-- `docs/06-frontend-store-map.svg` — MST store tree
 - `.claude/skills/frontend-mst.md`
 
 ### When working on the admin frontend (`/admin`)
@@ -228,8 +249,16 @@ Load the module's skill file and requirement doc:
 - ADM design tokens defined in `src/index.css` with `@theme inline`; dark-indigo sidebar (`#1E293B`), accent `#6366F1`
 - Cross-app impersonation: admin calls `window.open()` with `?impersonate_token=&tenant_name=` query params; staff app reads them on load in `_authenticated.tsx`
 
-### When working on infrastructure
+### When working on the landing frontend (`/landing`)
+- `docs/modules/landing.md` — landing app architecture, templates, multilanguage
+- `.claude/skills/landing.md` — MST stores, API endpoints, template switching patterns
+- Landing app (`/landing`, port 5700) is a customer-facing website per restaurant; uses `customer` guard for auth
+- Three visual templates: `v1-maison`, `v2-editorial`, `v3-cinematic` — switched via `LandingConfigStore.activeTemplate`
+- `I18nStore` provides multilanguage support with `t()` helper; locale persisted in `localStorage`
+
+### When working on infrastructure / deployment
 - `docs/07-infrastructure.md` — Docker images, Jenkins CI/CD, Terraform deployment config
+- `.claude/skills/jenkins-terraform.md` — deployment patterns, YAML config structure, secrets
 
 ### Cross-cutting rules (read when anything touches multiple modules)
 - `docs/09-cross-module-rules.md` — 86 propagation, WAC authority, tenant isolation, notifications, audit log
@@ -237,6 +266,27 @@ Load the module's skill file and requirement doc:
 ---
 
 ## 5. Critical Rules — Never Violate These
+
+### Form elements in `/web` — use design system components
+**Never** use raw HTML form elements inside the `/web` staff app. Always use the design system components from `@/components/ui/`:
+
+| Raw element | Use instead |
+|---|---|
+| `<button>` | `<Button>` or `<IconButton>` |
+| `<input>` | `<Input>` or `<NumberInput>` |
+| `<select>` | `<Select>` |
+| `<textarea>` | `<Textarea>` |
+| `<input type="checkbox">` | `<Checkbox>` |
+| `<input type="date">` | `<DatePicker>` |
+| toggle / on-off | `<Switch>` |
+
+This applies when **building new forms** and when **modifying existing forms**. The rule does not apply to the `/admin` or `/landing` apps which have their own patterns.
+
+### Migrations in `/api` — always ask before creating a new file
+Before writing any new migration file inside `/api/database/migrations/`, **stop and ask the user**:
+- Should this be a new `add_*_to_*` file, or should the changes be merged into the existing `create_*_table` migration for that table?
+
+Use `.claude/skills/fix-migrations.md` to decide. The rule of thumb: if the table has never been deployed to staging/production, merge into the create migration and delete any secondary file. Only create a new file for tables that already exist in a live environment.
 
 ### Tenant isolation
 1. Every Eloquent model that holds tenant data MUST have a `TenantScope` global scope applied.
@@ -273,29 +323,35 @@ Load the module's skill file and requirement doc:
 
 **See `docs/08-build-phases.md` for the detailed per-module phase breakdown.**
 
-### Phase 1 — Foundation (build first, everything else depends on it)
+### Phase 1 — Foundation ✓ COMPLETE
 - Tenancy infrastructure (tenant model, Global Scope, middleware)
-- Auth system (three guards, JWT, permissions table, system roles seeded)
+- Auth system (three guards, two-step OTP login, permissions table, system roles seeded)
 - Branch & Staff Management (branch CRUD, staff CRUD, role assignment)
 - Menu Management (master menu, branch overrides, 86 management)
 - Orders & Deliveries (all 7 channels, 9-stage lifecycle, Stripe payments, basic cancellations)
 - Laravel Reverb setup (WebSocket for live order dashboard)
 - Docker Compose for local development
 
-### Phase 2 — Core modules
+### Phase 2 — Core Modules ✓ COMPLETE
 - Table & Reservation Management
 - Customer Profiles & Loyalty (profile creation, deduplication, basic loyalty earn/redeem)
 - Inventory & Kitchen (stock management, KDS, waste logging, WAC costing)
 - Events & Functions (enquiry pipeline through billing)
 - SaaS tenant onboarding flow (signup, plan selection, branch setup wizard)
 
-### Phase 3 — Intelligence and platform
-- Analytics & Reporting (pre-aggregation jobs, 5 dashboards, RFM, CLV, churn risk)
-- Dynamic role builder UI (the permissions/roles tables are already there from Phase 1)
+### Phase 3 — Intelligence and Platform ✓ COMPLETE (with minor gaps)
+- Analytics & Reporting (pre-aggregation jobs, 5 dashboards, RFM, churn risk)
+- Dynamic role builder UI
 - Customer portal (loyalty dashboard, booking history, GDPR self-service)
-- **Platform admin app** — COMPLETE (standalone `/admin` Vite app, port 5600, 9 screens, cross-app impersonation)
-- External integrations (Uber Eats, Wolt, Twilio, Amazon SES)
-- Jenkins pipelines + Terraform deployment (staging + production)
+- **Platform admin app** — COMPLETE (`/admin`, port 5600, 9 screens, cross-app impersonation)
+- **Landing/customer website** — COMPLETE (`/landing`, port 5700, 3 templates, multilanguage)
+- **External integrations** — ALL COMPLETE (Stripe, Twilio, SES, Uber Eats, Wolt)
+- Jenkins pipelines + Terraform deployment (staging + production — Infisical project ID still to fill in)
+
+**Known remaining gaps** (see `NextSteps.md` for full detail):
+- Reservations: no-show deposit flag; loyalty no-show forgiveness
+- Customers: event 2× loyalty multiplier; downgrade grace warning; points expiry warning; manual merge
+- Analytics: CLV formula; COGS calc; tax collected report; RevPASH with special hours
 
 > **Course tracking (deferred):** The occupied table popup on the floor view shows a placeholder "Course: —". This requires adding `current_course` (enum: starters|mains|desserts) to the `orders` table and a UI control for staff to bump the course on the floor view. Implement when KDS course tracking is prioritised.
 
@@ -324,6 +380,6 @@ Load the module's skill file and requirement doc:
 - Props typed with TypeScript interfaces — no `any`
 - `authStore.can('permission.slug')` before rendering any privileged UI
 - API calls go through the typed `ApiService` class — no direct `fetch` in components
-- **Form elements in `/web`:** never use raw `<button>`, `<input>`, `<select>`, `<textarea>`, or `<checkbox>` — always use the design system components from `@/components/ui/` (e.g. `Button`, `IconButton`, `Input`, `Select`, `Textarea`, `Checkbox`, `Switch`, `NumberInput`, `DatePicker`, etc.). This applies when building new forms and when modifying existing ones.
+- **Form elements in `/web`:** NEVER use raw HTML form elements — always use design system components from `@/components/ui/`. See the "Form elements" rule in Section 5.
 
 **Full standards in `docs/02-tech-stack.md`.**

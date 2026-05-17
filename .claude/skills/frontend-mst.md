@@ -9,27 +9,43 @@ The `ApiService` base URL already includes `/v1`:
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1'
 ```
 
-**All service files must use paths WITHOUT a `/v1/` prefix** — the base URL provides it. Auth paths in `AuthStore.ts` also omit the `/v1/` prefix:
+**All service files must use paths WITHOUT a `/v1/` prefix** — the base URL provides it. Auth paths in `AuthStore.ts` also omit the `/v1/` prefix.
+
+## Staff Login — Two-Step OTP Flow
+
+Login is always **two steps**. The LoginPage must show two screens: credentials → OTP entry.
 
 ```typescript
-// AuthStore.ts — correct paths (never add /v1/ back)
-api.post('/auth/staff/login', { email, password, tenant_id: tenantId })  // login
-api.get('/auth/staff/me')                                                 // rehydrate
-api.post('/auth/staff/logout')                                            // logout
+// Step 1: credentials → challenge token (OTP emailed to staff)
+// Body: { email, password, tenant_slug }   ← tenant_slug, NOT tenant_id
+const { challenge_token, email_hint } = await auth.startLogin(email, password, tenantSlug)
+
+// Step 2: OTP entry → Sanctum token
+await auth.verifyOtp(challenge_token, otpCode)
+// On success: token stored in localStorage, user applied to MST model
 ```
 
-**`tenant_id` is required on login.** The backend `POST /api/v1/auth/staff/login` rejects requests without it. The login form must always include a Restaurant ID field that maps to `tenant_id` in the request body.
+**`tenant_slug` is required on Step 1.** The backend `POST /api/v1/auth/staff/login` rejects requests without it. The LoginPage must always include a Restaurant ID field that maps to `tenant_slug`.
 
 ```typescript
-// AuthStore login() signature
-login(email: string, password: string, tenantId: string)
+// AuthStore — two actions, one per step
+startLogin(email: string, password: string, tenantSlug: string)  // → challenge_token
+verifyOtp(challengeToken: string, code: string)                   // → sets isAuthenticated
 
-// LoginPage — must have all three fields
-const [email, setEmail] = useState('')
-const [password, setPassword] = useState('')
-const [tenantId, setTenantId] = useState('')
+// LoginPage — two stages
+const [stage, setStage] = useState<'credentials' | 'otp'>('credentials')
+const [challengeToken, setChallengeToken] = useState('')
 
-await auth.login(email, password, tenantId)
+// Stage 1 form: email, password, tenantSlug
+// Stage 2 form: 6-digit OTP input
+```
+
+Auth paths (never add `/v1/` back — the base URL provides it):
+```typescript
+api.post('/auth/staff/login', { email, password, tenant_slug })       // Step 1
+api.post('/auth/staff/otp/verify', { challenge_token, code, mode: '2fa' }) // Step 2
+api.get('/auth/staff/me')                                              // rehydrate
+api.post('/auth/staff/logout')                                         // logout
 ```
 
 ## Backend API Response Shape — Do Not Change These Types

@@ -134,17 +134,15 @@ php artisan migrate:fresh --seed
 
 ---
 
-## Quick Reference — Tables With Multiple Migrations (as of 2026-05-16)
+## Quick Reference — How to Find Tables With Multiple Migrations
 
-| Table | Original | Secondary | Merge? |
-|---|---|---|---|
-| `personal_access_tokens` | Vendor (Sanctum) | `2026_04_07_000013_augment_personal_access_tokens_table.php` | No — vendor table |
-| `landing_template_settings` | `2026_05_14_000006_create_landing_template_settings_table.php` | `2026_05_14_000011_add_supported_locales_to_landing_template_settings.php` | Yes |
-| `tables` | `2026_04_07_000024_create_tables_table.php` | `2026_05_15_000001_add_merged_table_id_to_tables.php` | Yes |
-| `tables` | `2026_04_07_000024_create_tables_table.php` | `2026_05_15_000002_convert_table_positions_to_meter_based.php` | No — data migration |
-| `tables` | `2026_04_07_000024_create_tables_table.php` | `2026_05_16_000001_add_floor_designer_metadata_to_tables.php` | Yes |
+Run Step 1's detection command (`ls database/migrations/ | grep -v "^2019_" | sort`) and group by table name. The following tables are known to have had secondary migrations at some point — always re-run the detection command rather than relying on this list, as it may be stale:
 
-> Keep this table updated whenever new migrations are added. Run the detection command in Step 1 whenever you're about to add a secondary migration — if one exists already for that table, merge instead.
+- `personal_access_tokens` — vendor table (Sanctum); always keep its augment migration separate
+- `landing_template_settings` — had `add_supported_locales_to_*` secondary; should be merged
+- `tables` — had multiple secondaries: `add_merged_table_id` (merge), `convert_table_positions_to_meter_based` (keep — data migration), `add_floor_designer_metadata` (merge)
+
+> Run the detection command in Step 1 whenever you're about to add a secondary migration — if one exists already for that table, merge instead.
 
 ---
 

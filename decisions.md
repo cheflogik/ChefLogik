@@ -75,7 +75,7 @@
 ## Decision 7 — Payment Gateway
 
 **Date decided:** 2026-04-17
-**Decision:** Stripe (`stripe/stripe-php ^13.0`), implemented behind a `PaymentGatewayInterface` contract so it can be swapped for another provider without touching business logic.
+**Decision:** Stripe (`stripe/stripe-php ^20`), implemented behind a `PaymentGatewayInterface` contract so it can be swapped for another provider without touching business logic.
 **Plugin architecture:**
 - `app/Contracts/PaymentGatewayInterface.php` — defines the contract: `createPaymentIntent()`, `capturePayment()`, `cancelPayment()`, `createRefund()`, `constructWebhookEvent()`
 - `app/Services/Payments/StripePaymentGateway.php` — Stripe implementation
@@ -214,8 +214,8 @@ Hard 403 on any mismatch — no silent failure.
 
 **Date decided:** 2026-04-07
 **Decision:**
-- Staff: Email-based reset only.
-- Customers: Choice of email or SMS OTP per `communication_prefs`. SMS implementation deferred until Decision 8 (SMS provider) is resolved. Email-only stub ships first.
+- Staff: Email-based reset only (`StaffPasswordResetMail` via SES).
+- Customers: Both email and SMS OTP paths fully implemented. Email path: `CustomerPasswordResetMail`. SMS path: `POST /v1/customer/auth/forgot-password` → Twilio OTP → `POST .../reset-password/sms`. Path selected per `communication_prefs`.
 
 ---
 
@@ -247,3 +247,48 @@ _Record any architectural decisions made during development here. Date every ent
 - `menu_item_platform_mappings.platform` column only accepts `'uber_eats'` and `'wolt'`
 - All references to DoorDash in stubs, jobs, and docs are replaced with Wolt
 - `SyncMenuItemToPlatformsJob` and `SyncOrderToPlatformsJob` target Uber Eats + Wolt
+
+---
+
+## Decision 23 — Landing / Customer-Facing Website App
+
+**Date decided:** 2026-05-14
+**Decision:** Each tenant gets a public-facing customer website hosted as a 4th standalone React app (`/landing`, port 5700). The website is not part of the staff app or customer portal — it is a separate Vite project.
+**Rationale:** Restaurants need a branded digital presence (menu browsing, online reservations, loyalty login) that is customer-facing, not staff-facing. Separating it avoids polluting the staff app with public routes.
+**Architecture:**
+- Separate Vite/React 19 project at `/landing`, port 5700
+- Uses the `customer` Sanctum guard for authentication (same guard as the customer portal in `/web`)
+- Three visual templates configurable per tenant: `v1-maison`, `v2-editorial`, `v3-cinematic`
+- Template selection and content driven by `landing_template_settings` DB table (no tenant_id — per-restaurant config via branch/tenant slug routing)
+- Multilanguage support via `I18nStore` — see Decision 25
+- Customer auth: `/customer/auth/login` and `/customer/auth/register` endpoints; token stored as `landing_token` in localStorage
+- Production domain: `landing.cheflogik.com`; deployed via same Jenkins + Terraform pattern as other apps
+- Image: `ghcr.io/dishuoberoi/cheflogik-landing`
+
+---
+
+## Decision 24 — Floor Plan Coordinate System
+
+**Date decided:** 2026-05-15
+**Decision:** Table positions in floor plans use a meter-based coordinate system, not pixel-based.
+**Rationale:** Pixel coordinates are resolution-dependent and break when the canvas size changes. Meter-based coordinates (e.g., `{x: 2.5, y: 1.0}` meaning 2.5m from left, 1.0m from top) are display-independent — the frontend scales them to pixels based on canvas dimensions at render time.
+**Implications:**
+- `tables.position` JSONB stores `{x, y, w, h, rotation}` in meters (e.g., a 1m × 0.8m table at position 2.5m, 1.0m)
+- Floor plan canvas dimensions are stored separately; the frontend calculates `px = meters × (canvasPx / canvasMeters)`
+- Migration `2026_05_15_000002_convert_table_positions_to_meter_based.php` converted existing pixel values (data migration — kept as separate file, not merged into create migration)
+- `add_floor_designer_metadata_to_tables.php` migration added: `section`, `server_station`, `seated_at`, `seated_by_user_id`, `last_cleared_at`, `last_cleared_by_user_id`, `merged_table_id`
+
+---
+
+## Decision 25 — Multilanguage Support
+
+**Date decided:** 2026-05-14
+**Decision:** The landing app supports multiple languages per restaurant. The staff app and admin app are English-only (MVP).
+**Supported locales:** `en-US`, `en-GB`, `fr-FR`, `es-ES`, `de-DE`, `de-AT`, `pl-PL`, `it-IT`
+**Architecture:**
+- Each tenant configures which locales they support via `landing_template_settings.supported_locales` (JSONB array)
+- Backend exposes `GET /api/v1/translations/{locale}?app=landing` returning a flat key→value translation map
+- Frontend `I18nStore` fetches translations on locale change; `t(key, vars?)` is the translation helper
+- Active locale persisted in `localStorage` under key `cl_landing_locale`
+- Default locale: `en-US` (always included, cannot be removed)
+- The `LanguageSwitcher.tsx` component renders a locale picker in the template header/footer

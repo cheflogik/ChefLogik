@@ -72,16 +72,35 @@ Route: `/forgot-password` (configured in `src/routes/forgot-password.tsx` via Ta
 
 ---
 
-## Global Form Field Standard
+## Form Elements — Design System Components Only (`/web`)
 
-All form inputs across the app use this Tailwind className pattern:
+**Never use raw HTML form elements in the `/web` staff app.** Always use the pre-built components from `@/components/ui/`. This rule applies when building new forms and when modifying existing forms.
+
+| Do NOT use | Use instead |
+|---|---|
+| `<button>` | `<Button>` or `<IconButton>` |
+| `<input type="text">` | `<Input>` |
+| `<input type="number">` | `<NumberInput>` |
+| `<input type="date">` | `<DatePicker>` |
+| `<input type="checkbox">` | `<Checkbox>` |
+| `<select>` | `<Select>` |
+| `<textarea>` | `<Textarea>` |
+| on/off toggle | `<Switch>` |
+
+These components handle consistent styling, accessibility, error states, and disabled states. Bypassing them creates visual inconsistency and breaks the design system.
+
+When the design system component does not yet exist for a use case, **ask before creating a raw element** — the component may need to be built and added to `@/components/ui/` first.
+
+## Global Form Field Standard (underlying style)
+
+The design system input components all apply this Tailwind className internally:
 
 ```
 w-full rounded-xl bg-muted border border-transparent px-4 py-3 text-sm text-foreground
 focus:outline-none focus:border-primary/30 focus:bg-background focus:ring-2 focus:ring-primary/20
 ```
 
-Every new form must follow this standard — do not introduce ad-hoc input styles.
+Do not replicate this on raw HTML elements — use the components.
 
 ---
 
