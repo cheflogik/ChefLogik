@@ -238,6 +238,9 @@ Load the module's skill file and requirement doc:
 - `docs/10-integrations.md` — all external API specs
 - `.claude/skills/integrations.md`
 
+### When working on ANY frontend UI (`/web` or `/admin`)
+- `.claude/skills/design-system.md` — **load this first** — all color tokens, typography, radius, every component's props/variants/sizes, and anti-patterns
+
 ### When working on the staff frontend (`/web`)
 - `docs/06-frontend-architecture.md` — React + MST conventions
 - `.claude/skills/frontend-mst.md`
