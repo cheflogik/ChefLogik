@@ -23,6 +23,12 @@ File: `api/database/seeders/DemoSeeder.php`
 | Reservations | `reservations` | Past 14 days + next 21 days, 4–10 per branch per day, mix of statuses |
 | Waitlist | `waitlist_entries` | 5 entries per branch (3 waiting, 1 seated, 1 left) |
 | Events | `events`, `event_spaces`, `event_packages` | 1 space + 2 packages per branch, 8 events per branch across all statuses |
+| Notifications | `app_notifications` | 15 staff notifications + 10 customer notifications (orders, reservations, loyalty, 86, inventory, events, shifts) |
+| Live Orders | `orders`, `order_items`, `order_status_history` | 8–12 active orders per branch today in new/confirmed/preparing/ready states |
+| Landing | `landing_template_settings`, `landing_seo_metadata`, `landing_content_blocks`, `landing_social_feeds`, `landing_galleries`, `landing_gallery_images`, `landing_featured_items`, `landing_domains` | v1-maison template, en-US/fr-FR/es-ES, hero/about/menu/hours/loyalty/events/contact blocks, Instagram+Facebook+TikTok, 1 gallery × 8 images, 6 featured items, domain record |
+| Landing Settings | `settings` | 11 landing.* module toggle + contact settings; tenant.settings JSON updated with description/cuisine/neighborhood |
+| Messaging Plugin | `settings` | messaging.plugin_enabled = true at tenant scope |
+| Loyalty Sync | `customer_tenant_profiles` | loyalty_points field updated to match final balance_after from loyalty_transactions after seeding |
 
 ---
 
