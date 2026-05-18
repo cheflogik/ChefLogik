@@ -36,7 +36,16 @@
       "Bash(python3 *)",
       "Bash(./vendor/bin/pint app/Models/MenuItem.php app/Models/MenuItemNutrition.php app/Models/MenuCategory.php app/Enums/ItemBadge.php app/Http/Resources/Menu/MenuItemResource.php app/Http/Resources/Menu/MenuItemNutritionResource.php app/Http/Requests/Menu/UploadMenuItemPhotoRequest.php app/Http/Requests/Menu/UploadMenuCategoryPhotoRequest.php app/Http/Requests/Menu/UpsertMenuItemNutritionRequest.php app/Services/Menu/MenuItemService.php app/Services/Menu/MenuCategoryService.php app/Http/Controllers/Api/V1/Menu/MenuItemController.php app/Http/Controllers/Api/V1/Menu/MenuCategoryController.php)",
       "Bash(node *)",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Read(//Users/deepak/Projects/ChefLogik/web/src/routes/_authenticated/staff/**)",
+      "Bash(sed -n '100,120p' /Users/deepak/Projects/ChefLogik/web/src/components/messaging/MessageThread.tsx)",
+      "Bash(sed -n '100,120p' /Users/deepak/Projects/ChefLogik/web/src/components/messaging/ConversationList.tsx)",
+      "Bash(sed *)",
+      "Bash(npx playwright *)",
+      "Bash(chmod +x *)",
+      "Bash(rm /Users/deepak/Projects/ChefLogik/api/vite.config.js /Users/deepak/Projects/ChefLogik/api/package.json)",
+      "Bash(rm /Users/deepak/Projects/ChefLogik/api/resources/js/app.js /Users/deepak/Projects/ChefLogik/api/resources/js/bootstrap.js)",
+      "Bash(rm /Users/deepak/Projects/ChefLogik/api/resources/css/app.css)"
     ]
   }
 }
