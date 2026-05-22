@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ChefLogik — Loader Examples</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0F1B2D;
+    --ink-2: #1E2B40;
+    --ink-3: #5A6478;
+    --bone: #F1EEE5;
+    --paper: #FAF8F2;
+    --paper-2: #F4F1E8;
+    --amber: oklch(0.74 0.13 75);
+    --rule: rgba(15,27,45,0.10);
+    --rule-strong: rgba(15,27,45,0.18);
+    --green: oklch(0.65 0.13 155);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     ChefLogik Loader — same construction across all sizes.
+     Cloche, plate, steam, garnish all use currentColor (inherit text colour).
+     Food (rect + mound) is always brand amber.
+     ───────────────────────────────────────────────────────────────── */
+  @keyframes cl-lift {
+    0%, 100% { transform: translateY(8px); }
+    50%      { transform: translateY(-6px); }
+  }
+  @keyframes cl-steam {
+    0%   { opacity: 0;    transform: translateY(2px); }
+    30%  { opacity: 0.85; }
+    100% { opacity: 0;    transform: translateY(-8px); }
+  }
+  .cl-dome { transform-box: fill-box; transform-origin: center; animation: cl-lift 1.4s ease-in-out infinite; }
+  .cl-st1  { animation: cl-steam 0.9s ease-out infinite 0s;    }
+  .cl-st2  { animation: cl-steam 0.9s ease-out infinite 0.25s; }
+
+  /* Loader element sizing — width/height in CSS, viewBox stays 0 0 80 80 */
+  cl-loader { display: inline-block; line-height: 0; }
+  cl-loader svg { display: block; width: 100%; height: 100%; }
+  .ic-xs cl-loader { width: 12px;  height: 12px;  }
+  .ic-sm cl-loader { width: 16px;  height: 16px;  }
+  .ic-md cl-loader { width: 24px;  height: 24px;  }
+  .ic-lg cl-loader { width: 40px;  height: 40px;  }
+  .ic-xl cl-loader { width: 64px;  height: 64px;  }
+
+  /* Page chrome */
+  .page { max-width: 1080px; margin: 0 auto; padding: 56px 48px 96px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 56px;
+  }
+  .topbar .crumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(15,27,45,0.55);
+  }
+  .size-pills { display: flex; gap: 6px; align-items: center; }
+  .size-pills .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 8px; border-radius: 999px;
+    background: rgba(15,27,45,0.06); color: rgba(15,27,45,0.7);
+  }
+
+  /* Row layout */
+  .row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    padding: 36px 0;
+    border-top: 1px solid var(--rule);
+    align-items: stretch;
+  }
+  .row:last-of-type { border-bottom: 1px solid var(--rule); }
+  .row .meta-col { display: flex; flex-direction: column; gap: 14px; padding-top: 4px; }
+  .row .label { display: flex; align-items: baseline; gap: 12px; }
+  .row .label .name {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700; font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .row .label .px {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(15,27,45,0.55);
+  }
+  .row .usage {
+    font-size: 13px;
+    color: rgba(15,27,45,0.65);
+    line-height: 1.55;
+    max-width: 200px;
+  }
+  .row .file {
+    margin-top: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: rgba(15,27,45,0.45);
+    letter-spacing: 0.04em;
+    padding: 6px 8px;
+    background: rgba(15,27,45,0.04);
+    border-radius: 4px;
+    align-self: flex-start;
+  }
+
+  .stage {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    position: relative;
+  }
+  .stage-paper { background: var(--paper-2); }
+
+  /* xs — chips, switcher, icon-button */
+  .ex-xs-row { display: flex; flex-wrap: wrap; gap: 28px; align-items: center; justify-content: center; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 11px 5px 9px;
+    border-radius: 999px;
+    font-size: 12.5px; font-weight: 500;
+  }
+  .chip-saving { background: oklch(0.74 0.13 75 / 0.14); color: oklch(0.40 0.09 60); }
+  .chip-saved  { background: oklch(0.92 0.05 155);       color: oklch(0.36 0.10 155); }
+  .lang-switch {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--rule);
+    background: #fff;
+    font-size: 13px; color: var(--ink);
+  }
+  .lang-switch .caret { color: var(--ink-3); font-size: 10px; }
+  .icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--rule);
+    background: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink);
+  }
+
+  /* sm — upload grid */
+  .upload-grid { display: grid; grid-template-columns: repeat(4, 80px); gap: 10px; }
+  .thumb {
+    width: 80px; height: 80px;
+    border-radius: 8px; overflow: hidden;
+    position: relative; border: 1px solid var(--rule);
+  }
+  .thumb-bg { width: 100%; height: 100%; }
+  .thumb-loading {
+    position: absolute; inset: 0;
+    background: rgba(15,27,45,0.55);
+    backdrop-filter: blur(2px);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--bone);
+  }
+  .thumb-add {
+    border: 1.5px dashed rgba(15,27,45,0.25);
+    background: rgba(15,27,45,0.02);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(15,27,45,0.4);
+    font-size: 22px;
+  }
+  .bg-p1 { background: linear-gradient(135deg, #c8b289, #8e7549); }
+  .bg-p2 { background: linear-gradient(135deg, #a9bcc7, #506a7c); }
+  .bg-p3 { background: linear-gradient(135deg, #d3b6a0, #876043); }
+
+  /* md — button */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 40px; padding: 0 18px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: var(--ink); color: var(--bone);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600; font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-secondary { background: #fff; color: var(--ink); border-color: var(--rule-strong); }
+  .btn-busy { background: var(--ink); color: rgba(241,238,229,0.7); cursor: progress; }
+
+  /* lg — table */
+  .table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+  .table th, .table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+  .table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(15,27,45,0.55);
+    font-weight: 500;
+    background: rgba(15,27,45,0.03);
+  }
+  .table .empty-row td { padding: 56px 0; text-align: center; color: rgba(15,27,45,0.55); }
+  .empty-cell { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .empty-cell .hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(15,27,45,0.4);
+  }
+  .table-card { background: #fff; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+
+  /* xl — splash */
+  .splash {
+    width: 100%; min-height: 320px;
+    background: var(--ink);
+    border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 28px;
+    color: var(--bone);
+    position: relative;
+  }
+  .splash .wordmark {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600; font-size: 24px;
+    letter-spacing: -0.025em;
+    color: var(--bone);
+  }
+  .splash .wordmark .bold { font-weight: 800; }
+  .splash .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(241,238,229,0.45);
+  }
+  .splash-progress {
+    width: 160px; height: 2px;
+    background: rgba(241,238,229,0.12);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .splash-progress::after {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 40%; height: 100%;
+    background: var(--amber);
+    border-radius: 2px;
+    animation: progress 1.6s ease-in-out infinite;
+  }
+  @keyframes progress { 0% { left: -40%; } 100% { left: 100%; } }
+
+  /* Usage block */
+  .usage-block {
+    margin-top: 56px;
+    padding: 28px;
+    background: var(--paper-2);
+    border-radius: 12px;
+    border: 1px solid var(--rule);
+  }
+  .usage-block h3 {
+    margin: 0 0 16px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600; font-size: 15px;
+    letter-spacing: -0.015em;
+  }
+  pre, code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink); margin: 0;
+  }
+  pre {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+  .code-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .footer {
+    margin-top: 64px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.06em;
+    color: rgba(15,27,45,0.45);
+  }
+</style>
+</head>
+<body>
+
+<!-- Loader template — cloned on demand by the <cl-loader> custom element.
+     Stays in sync with loader.html: identical viewBox, geometry, animation. -->
+<template id="cl-loader-tpl">
+  <svg viewBox="0 0 80 80" fill="none" aria-label="Loading">
+    <g class="cl-dome">
+      <circle cx="40" cy="11" r="2.8" fill="currentColor" />
+      <line x1="40" y1="14" x2="40" y2="20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+      <path d="M16 38 Q16 20 40 20 Q64 20 64 38" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" />
+      <line x1="16" y1="38" x2="64" y2="38" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+    </g>
+    <line class="cl-st1" x1="33" y1="46" x2="33" y2="50" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round" />
+    <line class="cl-st2" x1="47" y1="46" x2="47" y2="50" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round" />
+    <g>
+      <rect x="28" y="56" width="24" height="2.5" rx="0.6" fill="var(--amber)" />
+      <path d="M30 56 Q30 50 40 49 Q50 50 50 56 Z" fill="var(--amber)" />
+      <path d="M33 52.5 Q40 50.5 47 52.5" stroke="#fff" stroke-opacity="0.32" stroke-width="0.7" fill="none" stroke-linecap="round" />
+      <circle cx="40" cy="48.5" r="1.3" fill="currentColor" />
+    </g>
+    <path d="M10 60 Q40 66 70 60" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" />
+  </svg>
+</template>
+
+<script>
+  // Tiny custom element so every <cl-loader> instance clones the template
+  // and runs its own copy of the animation in light DOM (CSS in <style> applies).
+  customElements.define('cl-loader', class extends HTMLElement {
+    connectedCallback() {
+      if (this.childElementCount) return; // already populated
+      const tpl = document.getElementById('cl-loader-tpl');
+      this.appendChild(tpl.content.cloneNode(true));
+    }
+  });
+</script>
+
+<div class="page">
+
+  <div class="topbar">
+    <span class="crumb">ChefLogik · Loader · Examples</span>
+    <span class="size-pills">
+      <span class="pill">XS · 12</span>
+      <span class="pill">SM · 16</span>
+      <span class="pill">MD · 24</span>
+      <span class="pill">LG · 40</span>
+      <span class="pill">XL · 64</span>
+    </span>
+  </div>
+
+  <!-- ═══════════════════════ XS · 12px ═══════════════════════ -->
+  <div class="row">
+    <div class="meta-col">
+      <div class="label"><span class="name">xs</span><span class="px">12 × 12 px</span></div>
+      <div class="usage">Inline beside text — status chips, language switcher, icon-button glyphs.</div>
+      <div class="file">&lt;cl-loader&gt; @ 12px</div>
+    </div>
+    <div class="stage">
+      <div class="ex-xs-row">
+        <span class="chip chip-saving">
+          <span class="ic-xs"><cl-loader></cl-loader></span>
+          Saving…
+        </span>
+        <span class="chip chip-saved">
+          <span class="ic-xs"><cl-loader></cl-loader></span>
+          Saved
+        </span>
+        <span class="lang-switch">
+          <span class="ic-xs"><cl-loader></cl-loader></span>
+          EN · English
+          <span class="caret">▾</span>
+        </span>
+        <button class="icon-btn" aria-label="Open menu">
+          <span class="ic-xs"><cl-loader></cl-loader></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ SM · 16px ═══════════════════════ -->
+  <div class="row">
+    <div class="meta-col">
+      <div class="label"><span class="name">sm</span><span class="px">16 × 16 px</span></div>
+      <div class="usage">Overlays on photo/file upload thumbnails. Small sidebar panel indicators.</div>
+      <div class="file">&lt;cl-loader&gt; @ 16px</div>
+    </div>
+    <div class="stage stage-paper">
+      <div class="upload-grid">
+        <div class="thumb"><div class="thumb-bg bg-p1"></div></div>
+        <div class="thumb">
+          <div class="thumb-bg bg-p2"></div>
+          <div class="thumb-loading">
+            <span class="ic-sm"><cl-loader></cl-loader></span>
+          </div>
+        </div>
+        <div class="thumb"><div class="thumb-bg bg-p3"></div></div>
+        <div class="thumb thumb-add">+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MD · 24px ═══════════════════════ -->
+  <div class="row">
+    <div class="meta-col">
+      <div class="label"><span class="name">md</span><span class="px">24 × 24 px</span></div>
+      <div class="usage">Replaces the button label while submitting. Default in-button spinner size.</div>
+      <div class="file">&lt;cl-loader&gt; @ 24px</div>
+    </div>
+    <div class="stage">
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <button class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-busy" disabled>
+          <span class="ic-md"><cl-loader></cl-loader></span>
+          Saving…
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ LG · 40px ═══════════════════════ -->
+  <div class="row">
+    <div class="meta-col">
+      <div class="label"><span class="name">lg</span><span class="px">40 × 40 px</span></div>
+      <div class="usage">Centred inside a content section while a list or table loads.</div>
+      <div class="file">&lt;cl-loader&gt; @ 40px</div>
+    </div>
+    <div class="stage">
+      <div class="table-card" style="width: 100%; max-width: 560px;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 50%">Order</th>
+              <th>Location</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="empty-row">
+              <td colspan="3">
+                <div class="empty-cell">
+                  <span class="ic-lg" style="color: var(--ink-3);"><cl-loader></cl-loader></span>
+                  <span class="hint">Loading orders…</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ XL · 64px ═══════════════════════ -->
+  <div class="row">
+    <div class="meta-col">
+      <div class="label"><span class="name">xl</span><span class="px">64 × 64 px</span></div>
+      <div class="usage">Centred on the full screen during app initialisation or a full-page transition.</div>
+      <div class="file">&lt;cl-loader&gt; @ 64px</div>
+    </div>
+    <div class="stage" style="padding: 0;">
+      <div class="splash">
+        <span class="ic-xl"><cl-loader></cl-loader></span>
+        <div class="wordmark">Chef<span class="bold">Logik</span></div>
+        <div class="splash-progress"></div>
+        <div class="step">Initialising · loading workspace</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Usage block -->
+  <div class="usage-block">
+    <h3>Drop-in pattern · one design, sized per application</h3>
+    <div class="code-grid">
+      <pre>// React component (single SVG, no size variants)
+import LoaderSvg from './loader.svg?react';
+
+const PX = { xs: 12, sm: 16, md: 24, lg: 40, xl: 64 };
+
+export function Loader({ size = 'md', className }) {
+  const px = PX[size];
+  return (
+    &lt;LoaderSvg
+      width={px} height={px}
+      className={className}
+      aria-label="Loading"
+    /&gt;
+  );
+}
+
+// Animation (cloche bob, steam, plated food) is baked
+// into loader.svg. Cloche inherits text colour;
+// food stays brand amber.</pre>
+      <pre>// usage — same loader, sized per context
+
+&lt;span className="chip"&gt;
+  &lt;Loader size="xs" /&gt; Saving…
+&lt;/span&gt;
+
+&lt;button disabled&gt;
+  &lt;Loader size="md" /&gt; Saving…
+&lt;/button&gt;
+
+// dark background — flip the text colour,
+// food stays amber
+&lt;div style={{ color: 'var(--bone)' }}&gt;
+  &lt;Loader size="xl" /&gt;
+&lt;/div&gt;</pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>ChefLogik — Loader · 5 applications · one design</span>
+    <span>Cloche Lift</span>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ChefLogik — Loader</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --ink: #0F1B2D;
+    --paper: #FAF8F2;
+    --amber: oklch(0.74 0.13 75);
+  }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ─── Loader keyframes (same construction as logo.html → 04 Loader) ─── */
+  @keyframes cl-lift {
+    0%, 100% { transform: translateY(8px); }
+    50%      { transform: translateY(-6px); }
+  }
+  @keyframes cl-steam {
+    0%   { opacity: 0;    transform: translateY(2px); }
+    30%  { opacity: 0.85; }
+    100% { opacity: 0;    transform: translateY(-8px); }
+  }
+  .cl-dome  { transform-box: fill-box; transform-origin: center; animation: cl-lift  1.4s ease-in-out infinite; }
+  .cl-st1   { animation: cl-steam 0.9s ease-out infinite 0s;    }
+  .cl-st2   { animation: cl-steam 0.9s ease-out infinite 0.25s; }
+</style>
+</head>
+<body>
+
+  <svg width="160" height="160" viewBox="0 0 80 80" fill="none" aria-label="Loading">
+    <g class="cl-dome">
+      <circle cx="40" cy="11" r="2.8" fill="var(--ink)" />
+      <line x1="40" y1="14" x2="40" y2="20" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" />
+      <path d="M16 38 Q16 20 40 20 Q64 20 64 38" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round" />
+      <line x1="16" y1="38" x2="64" y2="38" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" />
+    </g>
+    <line class="cl-st1" x1="33" y1="46" x2="33" y2="50" stroke="var(--ink)" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round" />
+    <line class="cl-st2" x1="47" y1="46" x2="47" y2="50" stroke="var(--ink)" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round" />
+    <!-- Plated food: a small canapé / tarte sitting on the tray. Static. -->
+    <g>
+      <rect x="28" y="56" width="24" height="2.5" rx="0.6" fill="var(--amber)" />
+      <path d="M30 56 Q30 50 40 49 Q50 50 50 56 Z" fill="var(--amber)" />
+      <path d="M33 52.5 Q40 50.5 47 52.5" stroke="#fff" stroke-opacity="0.32" stroke-width="0.7" fill="none" stroke-linecap="round" />
+      <circle cx="40" cy="48.5" r="1.3" fill="var(--ink)" />
+    </g>
+    <path d="M10 60 Q40 66 70 60" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round" />
+  </svg>
+
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ChefLogik — Logo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0F1B2D;
+    --ink-2: #1E2B40;
+    --ink-3: #5A6478;
+    --bone: #F1EEE5;
+    --bone-2: #E6E1D2;
+    --paper: #FAF8F2;
+    --paper-2: #F4F1E8;
+    --amber: oklch(0.74 0.13 75);
+    --amber-soft: oklch(0.74 0.13 75 / 0.16);
+    --rule: rgba(15,27,45,0.10);
+    --rule-strong: rgba(15,27,45,0.18);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── ChefLogik mark + wordmark + loader (custom elements below) ─── */
+  cl-mark, cl-loader {
+    display: inline-block;
+    line-height: 0;
+    flex: none;
+  }
+  cl-mark svg, cl-loader svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Loader animation — matches loader.html exactly */
+  @keyframes cl-lift {
+    0%, 100% { transform: translateY(8px); }
+    50%      { transform: translateY(-6px); }
+  }
+  @keyframes cl-steam {
+    0%   { opacity: 0;    transform: translateY(2px); }
+    30%  { opacity: 0.85; }
+    100% { opacity: 0;    transform: translateY(-8px); }
+  }
+  .cl-dome { transform-box: fill-box; transform-origin: center; animation: cl-lift 1.4s ease-in-out infinite; }
+  .cl-st1  { animation: cl-steam 0.9s ease-out infinite 0s;    }
+  .cl-st2  { animation: cl-steam 0.9s ease-out infinite 0.25s; }
+
+  /* Wordmark */
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  .wordmark .chef  { font-weight: 500; }
+  .wordmark .logik { font-weight: 800; display: inline-flex; align-items: baseline; }
+  .wordmark .dotless-i {
+    width: 0.22em;
+    height: 0.96em;
+    display: inline-block;
+    vertical-align: baseline;
+    margin-right: 0.015em;
+  }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 64px 56px 96px; }
+
+  /* ─── Page header ─── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 64px;
+  }
+  .topbar .crumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(15,27,45,0.55);
+  }
+  .topbar .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.08em;
+    color: rgba(15,27,45,0.45);
+  }
+
+  /* ─── Sections ─── */
+  .section { margin-bottom: 88px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 18px;
+    margin-bottom: 28px;
+  }
+  .section-head .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.16em;
+    color: rgba(15,27,45,0.4);
+  }
+  .section-head h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600; font-size: 22px;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .section-head .note {
+    font-size: 13px;
+    color: rgba(15,27,45,0.55);
+    margin-left: auto;
+    max-width: 380px;
+    line-height: 1.55;
+    text-align: right;
+  }
+
+  /* ─── Hero ─── */
+  .hero {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--rule);
+    padding: 88px 56px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .hero .corner {
+    position: absolute; top: 18px; left: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(15,27,45,0.35);
+  }
+  .hero .corner.tr { left: auto; right: 22px; color: rgba(15,27,45,0.3); }
+  .lockup { display: inline-flex; align-items: center; gap: 22px; }
+  .lockup-loose { gap: 28px; }
+
+  /* ─── Card grid ─── */
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid var(--rule);
+    padding: 32px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 200px;
+    position: relative;
+  }
+  .card.dark { background: var(--ink); border-color: transparent; color: var(--bone); }
+  .card .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(15,27,45,0.5);
+  }
+  .card.dark .label { color: rgba(241,238,229,0.5); }
+
+  .dark-row {
+    background: var(--ink);
+    border-radius: 12px;
+    padding: 88px 56px;
+    color: var(--bone);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .dark-row .wordmark { color: var(--bone); }
+  .dark-row .corner {
+    position: absolute; top: 18px; left: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(241,238,229,0.4);
+  }
+
+  /* ─── In context ─── */
+  .context-card {
+    background: var(--paper-2);
+    border-radius: 12px;
+    border: 1px solid var(--rule);
+    padding: 28px;
+    position: relative;
+  }
+  .browser { border-radius: 12px; overflow: hidden; box-shadow: 0 12px 32px rgba(15,27,45,0.10); }
+  .browser .tabs { background: #DAD4C2; padding: 8px 8px 0; display: flex; gap: 4px; }
+  .browser .tab {
+    background: #FAF8F2;
+    border-radius: 8px 8px 0 0;
+    padding: 9px 14px;
+    display: flex; align-items: center; gap: 9px;
+    font-size: 12.5px; color: #0F1B2D;
+    min-width: 180px;
+  }
+  .browser .tab.inactive { background: rgba(250,248,242,0.45); color: #807A6F; }
+  .browser .body { background: #FAF8F2; padding: 22px 24px; }
+  .browser .nav {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(15,27,45,0.08);
+  }
+  .browser .nav .v {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #807A6F;
+  }
+  .browser .nav-items {
+    display: flex; gap: 22px;
+    font-size: 12px; color: #5A6478;
+    padding-top: 16px;
+  }
+  .browser .nav-items .active { color: #0F1B2D; font-weight: 600; }
+
+  /* ─── Tokens ─── */
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .swatch {
+    border-radius: 8px;
+    height: 130px;
+    padding: 14px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.04em;
+  }
+  .swatch .name { opacity: 0.75; }
+  .swatch .hex  { font-size: 11px; margin-top: 3px; }
+
+  /* ─── Type spec ─── */
+  .type-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 220px;
+    gap: 24px;
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .type-row:last-child { border-bottom: 1px solid var(--rule); }
+  .type-row .role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(15,27,45,0.5);
+  }
+  .type-row .spec {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: rgba(15,27,45,0.55);
+    text-align: right;
+  }
+
+  /* ─── Clear space ─── */
+  .clearspace {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 56px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .clearspace .frame {
+    position: relative;
+    padding: 64px;
+    border: 1px dashed rgba(15,27,45,0.25);
+    border-radius: 4px;
+  }
+  .clearspace .x-tag {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: rgba(15,27,45,0.5);
+    background: #fff;
+    padding: 2px 6px;
+  }
+  .clearspace .x-top  { top: -8px;  left: 50%; transform: translateX(-50%); }
+  .clearspace .x-left { left: -16px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+
+  /* ─── Footer ─── */
+  .footer {
+    margin-top: 96px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: rgba(15,27,45,0.45);
+    letter-spacing: 0.06em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── Templates for the custom elements ─── -->
+
+<template id="cl-mark-tpl">
+  <svg viewBox="0 0 80 80" fill="none" aria-label="ChefLogik mark">
+    <circle cx="40" cy="11" r="2.8" fill="currentColor" />
+    <line x1="40" y1="14" x2="40" y2="20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M16 38 Q16 20 40 20 Q64 20 64 38" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" />
+    <line x1="16" y1="38" x2="64" y2="38" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+    <line x1="33" y1="46" x2="33" y2="50" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round" />
+    <line x1="47" y1="46" x2="47" y2="50" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round" />
+    <circle cx="40" cy="54" r="4.2" fill="var(--amber)" />
+    <ellipse cx="40" cy="62" rx="28" ry="2.6" fill="currentColor" opacity="0.18" />
+    <path d="M10 60 Q40 66 70 60" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" />
+  </svg>
+</template>
+
+<template id="cl-loader-tpl">
+  <svg viewBox="0 0 80 80" fill="none" aria-label="Loading">
+    <g class="cl-dome">
+      <circle cx="40" cy="11" r="2.8" fill="currentColor" />
+      <line x1="40" y1="14" x2="40" y2="20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+      <path d="M16 38 Q16 20 40 20 Q64 20 64 38" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" />
+      <line x1="16" y1="38" x2="64" y2="38" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+    </g>
+    <line class="cl-st1" x1="33" y1="46" x2="33" y2="50" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round" />
+    <line class="cl-st2" x1="47" y1="46" x2="47" y2="50" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round" />
+    <g>
+      <rect x="28" y="56" width="24" height="2.5" rx="0.6" fill="var(--amber)" />
+      <path d="M30 56 Q30 50 40 49 Q50 50 50 56 Z" fill="var(--amber)" />
+      <path d="M33 52.5 Q40 50.5 47 52.5" stroke="#fff" stroke-opacity="0.32" stroke-width="0.7" fill="none" stroke-linecap="round" />
+      <circle cx="40" cy="48.5" r="1.3" fill="currentColor" />
+    </g>
+    <path d="M10 60 Q40 66 70 60" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" />
+  </svg>
+</template>
+
+<script>
+  customElements.define('cl-mark', class extends HTMLElement {
+    connectedCallback() {
+      if (this.childElementCount) return;
+      this.appendChild(document.getElementById('cl-mark-tpl').content.cloneNode(true));
+    }
+  });
+  customElements.define('cl-loader', class extends HTMLElement {
+    connectedCallback() {
+      if (this.childElementCount) return;
+      this.appendChild(document.getElementById('cl-loader-tpl').content.cloneNode(true));
+    }
+  });
+</script>
+
+<div class="page" data-screen-label="ChefLogik Logo">
+
+  <div class="topbar">
+    <span class="crumb">ChefLogik · Brand · Logo</span>
+    <span class="meta">02 · Cloche Lift</span>
+  </div>
+
+  <!-- ─── Hero ─── -->
+  <section class="section">
+    <div class="hero" data-screen-label="01 Hero">
+      <div class="corner">Cloche Lift · Primary lockup</div>
+      <div class="corner tr">SVG · scalable</div>
+      <div class="lockup lockup-loose">
+        <cl-mark style="width: 96px; height: 96px;"></cl-mark>
+        <span class="wordmark" style="font-size: 72px;">
+          <span class="chef">Chef</span><span class="logik">Log<svg class="dotless-i" viewBox="0 0 22 100" aria-hidden="true"><rect x="4" y="36" width="14" height="44" rx="1.5" fill="currentColor"/><circle cx="11" cy="22" r="9" fill="var(--amber)"/></svg>k</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 01 Mark, at scale ─── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">01</span>
+      <h2>Mark, at scale</h2>
+      <span class="note">Single SVG — no size-specific overrides. Reads as a cloche down to 16px; the amber bead anchors recognition.</span>
+    </div>
+    <div class="grid cols-5">
+      <div class="card"><cl-mark style="width: 96px; height: 96px;"></cl-mark><span class="label">96px</span></div>
+      <div class="card"><cl-mark style="width: 64px; height: 64px;"></cl-mark><span class="label">64px</span></div>
+      <div class="card"><cl-mark style="width: 40px; height: 40px;"></cl-mark><span class="label">40px</span></div>
+      <div class="card"><cl-mark style="width: 24px; height: 24px;"></cl-mark><span class="label">24px</span></div>
+      <div class="card"><cl-mark style="width: 16px; height: 16px;"></cl-mark><span class="label">16px</span></div>
+    </div>
+  </section>
+
+  <!-- ─── 02 App icon & favicon ─── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">02</span>
+      <h2>App icon &amp; favicon</h2>
+      <span class="note">App icons sit on white with a rounded-square ground; favicon strips the ground.</span>
+    </div>
+    <div class="grid cols-4">
+      <div class="card">
+        <div style="width: 128px; height: 128px; border-radius: 28px; background: #fff; box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 12px 32px rgba(15,27,45,0.10); display: flex; align-items: center; justify-content: center;">
+          <cl-mark style="width: 84px; height: 84px;"></cl-mark>
+        </div>
+        <span class="label">App · 128px</span>
+      </div>
+      <div class="card">
+        <div style="width: 96px; height: 96px; border-radius: 20px; background: var(--ink); color: var(--bone); display: flex; align-items: center; justify-content: center;">
+          <cl-mark style="width: 64px; height: 64px;"></cl-mark>
+        </div>
+        <span class="label">App · 96px · dark</span>
+      </div>
+      <div class="card">
+        <div style="width: 64px; height: 64px; border-radius: 12px; background: #fff; box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 4px 12px rgba(15,27,45,0.08); display: flex; align-items: center; justify-content: center;">
+          <cl-mark style="width: 42px; height: 42px;"></cl-mark>
+        </div>
+        <span class="label">Touch · 64px</span>
+      </div>
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <cl-mark style="width: 32px; height: 32px;"></cl-mark>
+          <cl-mark style="width: 20px; height: 20px;"></cl-mark>
+          <cl-mark style="width: 16px; height: 16px;"></cl-mark>
+        </div>
+        <span class="label">Favicon · 32 / 20 / 16</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 03 Dark variant ─── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">03</span>
+      <h2>Dark variant</h2>
+      <span class="note">Same construction reversed on navy. Amber holds without adjustment — it's the only color signal.</span>
+    </div>
+    <div class="dark-row" data-screen-label="03 Dark Variant">
+      <div class="corner">Cloche Lift · Dark</div>
+      <div class="lockup lockup-loose">
+        <cl-mark style="width: 96px; height: 96px;"></cl-mark>
+        <span class="wordmark" style="font-size: 72px;">
+          <span class="chef">Chef</span><span class="logik">Log<svg class="dotless-i" viewBox="0 0 22 100" aria-hidden="true"><rect x="4" y="36" width="14" height="44" rx="1.5" fill="currentColor"/><circle cx="11" cy="22" r="9" fill="var(--amber)"/></svg>k</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 04 Loader ─── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">04</span>
+      <h2>Loader</h2>
+      <span class="note">Looped CSS — cloche bobs over a plated dish, steam rises. Use as app-shell splash or inline progress.</span>
+    </div>
+    <div class="grid cols-3">
+      <div class="card" style="padding-top: 40px; padding-bottom: 24px;">
+        <cl-loader style="width: 120px; height: 120px;"></cl-loader>
+        <span class="label">Default · 120px</span>
+      </div>
+      <div class="card" style="padding-top: 40px; padding-bottom: 24px;">
+        <cl-loader style="width: 72px; height: 72px;"></cl-loader>
+        <span class="label">Compact · 72px</span>
+      </div>
+      <div class="card dark" style="padding-top: 40px; padding-bottom: 24px;">
+        <cl-loader style="width: 120px; height: 120px;"></cl-loader>
+        <span class="label">Dark · 120px</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 05 Clear space ─── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">05</span>
+      <h2>Clear space &amp; minimum size</h2>
+      <span class="note">Maintain 1× the mark's height on all sides. Minimum: 16px digital, 8mm print.</span>
+    </div>
+    <div class="clearspace">
+      <div class="frame">
+        <span class="x-tag x-top">1×</span>
+        <span class="x-tag x-left">1×</span>
+        <div class="lockup lockup-loose">
+          <cl-mark style="width: 72px; height: 72px;"></cl-mark>
+          <span class="wordmark" style="font-size: 56px;">
+            <span class="chef">Chef</span><span class="logik">Log<svg class="dotless-i" viewBox="0 0 22 100" aria-hidden="true"><rect x="4" y="36" width="14" height="44" rx="1.5" fill="currentColor"/><circle cx="11" cy="22" r="9" fill="var(--amber)"/></svg>k</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 06 In context ─── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">06</span>
+      <h2>In context</h2>
+      <span class="note">Browser chrome at native scale. Favicon, tab label, app header.</span>
+    </div>
+    <div class="context-card">
+      <div class="browser">
+        <div class="tabs">
+          <div class="tab">
+            <cl-mark style="width: 14px; height: 14px;"></cl-mark>
+            <span>ChefLogik · Console</span>
+            <span style="margin-left: auto; color: #9A9690; font-size: 14px;">×</span>
+          </div>
+          <div class="tab inactive"><span>Dashboards</span></div>
+          <div class="tab inactive"><span>Inventory</span></div>
+        </div>
+        <div class="body">
+          <div class="nav">
+            <cl-mark style="width: 28px; height: 28px;"></cl-mark>
+            <span class="wordmark" style="font-size: 20px;">
+              <span class="chef">Chef</span><span class="logik">Log<svg class="dotless-i" viewBox="0 0 22 100" aria-hidden="true"><rect x="4" y="36" width="14" height="44" rx="1.5" fill="currentColor"/><circle cx="11" cy="22" r="9" fill="var(--amber)"/></svg>k</span>
+            </span>
+            <span class="v">v4.2 · prod · 12 locations</span>
+          </div>
+          <div class="nav-items">
+            <span class="active">Overview</span>
+            <span>Menus</span>
+            <span>Orders</span>
+            <span>Reservations</span>
+            <span>Inventory</span>
+            <span>Staff</span>
+            <span>Analytics</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 07 System ─── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">07</span>
+      <h2>System</h2>
+      <span class="note">Plus Jakarta Sans for the wordmark and UI; JetBrains Mono for system labels and metadata only.</span>
+    </div>
+    <div class="swatches" style="margin-bottom: 32px;">
+      <div class="swatch" style="background: #0F1B2D; color: #F1EEE5;">
+        <div class="name">Navy</div>
+        <div class="hex">#0F1B2D</div>
+      </div>
+      <div class="swatch" style="background: #1E2B40; color: #F1EEE5;">
+        <div class="name">Navy-2</div>
+        <div class="hex">#1E2B40</div>
+      </div>
+      <div class="swatch" style="background: #F1EEE5; color: #0F1B2D; border: 1px solid rgba(15,27,45,0.08);">
+        <div class="name">Bone</div>
+        <div class="hex">#F1EEE5</div>
+      </div>
+      <div class="swatch" style="background: #FAF8F2; color: #0F1B2D; border: 1px solid rgba(15,27,45,0.08);">
+        <div class="name">Paper</div>
+        <div class="hex">#FAF8F2</div>
+      </div>
+      <div class="swatch" style="background: oklch(0.74 0.13 75); color: #0F1B2D;">
+        <div class="name">Amber</div>
+        <div class="hex">oklch(0.74 0.13 75)</div>
+      </div>
+    </div>
+    <div>
+      <div class="type-row">
+        <span class="role">Wordmark</span>
+        <span style="font-family: 'Plus Jakarta Sans'; font-weight: 500; font-size: 28px; letter-spacing: -0.025em;">Plus Jakarta Sans 500 · 800</span>
+        <span class="spec">Tracking −0.025em · lh 1</span>
+      </div>
+      <div class="type-row">
+        <span class="role">UI</span>
+        <span style="font-family: 'Plus Jakarta Sans'; font-weight: 500; font-size: 22px;">Plus Jakarta Sans 400 · 500 · 600</span>
+        <span class="spec">Tracking 0 · lh 1.4</span>
+      </div>
+      <div class="type-row">
+        <span class="role">Mono</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 18px;">JetBrains Mono 400 · 500</span>
+        <span class="spec">Labels, metadata, code</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span>ChefLogik — v1.0 · 2026</span>
+    <span>Cloche Lift</span>
+  </div>
+
+</div>
+
+</body>
+</html>
