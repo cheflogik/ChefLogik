@@ -196,7 +196,7 @@
 - [x] Jenkinsfile — Landing (shared library: build, scan, push, terraform deploy)
 - [x] terraform/staging.yaml — Landing
 - [x] terraform/production.yaml — Landing
-- [ ] Infisical project created + project IDs filled in staging/production YAMLs
+- [x] Infisical project created + project IDs filled in staging/production YAMLs
 - [ ] Jenkins pipelines configured for all four repos
 - [ ] Staging environment verified end-to-end
 

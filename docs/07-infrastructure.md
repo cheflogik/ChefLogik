@@ -208,7 +208,7 @@ TLS certificates are provisioned automatically by cert-manager:
 
 All sensitive values (database credentials, Stripe keys, Twilio keys, AWS keys, APP_KEY, Reverb secrets) are stored in Infisical and injected into pods at runtime by the Terraform module. Nothing sensitive goes into `staging.yaml` / `production.yaml` or Jenkins build config.
 
-Update the `secrets.projectId` field in each YAML after creating the Infisical project for ChefLogik.
+The `secrets.projectId` field is configured in each app's `staging.yaml` and `production.yaml`.
 
 ---
 

@@ -349,7 +349,7 @@ Use `.claude/skills/fix-migrations.md` to decide. The rule of thumb: if the tabl
 - **Platform admin app** — COMPLETE (`/admin`, port 5600, 9 screens, cross-app impersonation)
 - **Landing/customer website** — COMPLETE (`/landing`, port 5700, 3 templates, multilanguage)
 - **External integrations** — ALL COMPLETE (Stripe, Twilio, SES, Uber Eats, Wolt)
-- Jenkins pipelines + Terraform deployment (staging + production — Infisical project ID still to fill in)
+- Jenkins pipelines + Terraform deployment (staging + production — ✓ Infisical project IDs configured)
 
 **Known remaining gaps** (see `NextSteps.md` for full detail):
 - Reservations: no-show deposit flag; loyalty no-show forgiveness

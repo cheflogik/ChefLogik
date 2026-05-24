@@ -53,10 +53,9 @@
 - `RefreshDeliveryPlatformTokensCommand` — scheduled every 50 min to refresh OAuth tokens
 - 13 tests covering webhook ingestion (valid/invalid sig, idempotency, unknown store) and sync job logic
 
-### 5. Kubernetes / Helm Charts
-- Kubernetes manifests for app, workers, reverb
-- Helm chart with environment-specific values
-- See `docs/07-infrastructure.md` for the full spec
+### ✓ 5. Kubernetes / Helm Charts — NOT REQUIRED
+- Deployment handled via Jenkinsfile + Terraform config per repo (no separate K8s manifests needed)
+- See `docs/07-infrastructure.md` for the deployment architecture
 
 ---
 
