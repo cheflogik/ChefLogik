@@ -46,7 +46,9 @@
       "Bash(rm /Users/deepak/Projects/ChefLogik/api/vite.config.js /Users/deepak/Projects/ChefLogik/api/package.json)",
       "Bash(rm /Users/deepak/Projects/ChefLogik/api/resources/js/app.js /Users/deepak/Projects/ChefLogik/api/resources/js/bootstrap.js)",
       "Bash(rm /Users/deepak/Projects/ChefLogik/api/resources/css/app.css)",
-      "Bash(open *)"
+      "Bash(open *)",
+      "Bash(redis-cli -h 127.0.0.1 -p 6379 AUTH ChefLogik tTnKbrTkayki4)",
+      "Bash(redis-cli -h 127.0.0.1 -p 6379 AUTH tTnKbrTkayki4)"
     ]
   }
 }
