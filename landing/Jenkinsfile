@@ -1,0 +1,57 @@
+// =============================================================================
+// Jenkinsfile for ChefLogik Web (Using Shared Library)
+// =============================================================================
+// Branch-specific CI/CD pipeline using the shared Jenkins library:
+//   - staging branch    → builds and deploys to cheflogik-admin-staging namespace
+//   - production branch → builds and deploys to cheflogik-admin-production namespace
+//
+// All pipeline logic is centralised in the shared library.
+// This file contains only application-specific configuration.
+//
+// Note: VITE_* environment variables (API URL, Reverb config) are baked into
+// the build at Docker build time. Configure them as Jenkins build parameters
+// or as secrets in the shared library for each environment.
+// =============================================================================
+
+@Library('jenkins-shared-library@main') _
+
+buildAndDeployApp(
+    // Application identification
+    appName: 'cheflogik-admin',
+    imageRepo: 'dishuoberoi/cheflogik-admin',
+
+    // Container registry
+    registry: 'ghcr.io',
+
+    // Build configuration
+    buildTools: [],
+    nodeImage: 'node:20-alpine',
+
+    // Security scanning
+    trivySeverity: 'HIGH,CRITICAL',
+    trivyExitCode: 0,
+
+    // Deployment configuration — static frontend, no migrations or cache
+    enableMigrations: false,
+    autoMigrateProduction: false,
+    healthCheckPath: '/health',
+    clearCache: false,
+
+    // Terraform configuration
+    terraformDir: 'terraform',
+    terraformVars: [:],
+
+    // Timeouts — frontend deploys faster than the API
+    deployTimeout: 15,
+    rolloutTimeout: 180,
+)
+
+// =============================================================================
+// The shared library handles:
+//   - Building the Docker image (multi-stage: Node build → Nginx static)
+//   - Security scanning with Trivy
+//   - Pushing to GHCR
+//   - Terraform deployment (staging.yaml / production.yaml)
+//   - Rollout verification
+//   - Automatic rollback on failure
+// =============================================================================

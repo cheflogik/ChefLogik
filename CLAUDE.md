@@ -320,6 +320,13 @@ Use `.claude/skills/fix-migrations.md` to decide. The rule of thumb: if the tabl
 2. Customer PII: anonymised on erasure request, financial history retained anonymised.
 3. Audit logs: 7 years minimum.
 
+### S3 file uploads — always use `StoragePath`
+1. **Never hardcode an S3 path string** in a service, job, or controller. Always use `App\Support\StoragePath` static methods.
+2. **DB stores paths, not URLs.** Call `StoragePath::publicUrl($path)` or `StoragePath::privateUrl($path, $ttlMinutes)` inside the API Resource when building the response.
+3. **Public zone** (`tenants/{tid}/public/...`): images served directly in the browser. Covered by bucket policy wildcard — no AWS change needed for new types.
+4. **Private zone** (`tenants/{tid}/private/...`): documents, exports, sensitive files. Serve only via `StoragePath::privateUrl()`. Never put private files in the public zone.
+5. **Adding a new upload type:** add a method to `StoragePath`, pick a zone, use in service, resolve in resource. See `decisions.md` Decision 12 for the full pattern.
+
 ---
 
 ## 6. Build Phases

@@ -1,0 +1,52 @@
+namespace: cheflogik
+manage_namespace: true
+
+image:
+  repository: ghcr.io/dishuoberoi/cheflogik-admin
+  pullSecret: ghcr-secret
+
+# Note: VITE_* variables are baked in at Docker build time by Vite.
+# Configure them as build args in the Jenkins pipeline, not as runtime env.
+env:
+  NODE_ENV: production
+  VITE_API_URL: https://api.cheflogik.com/api/v1
+  VITE_STAFF_APP_URL: https://app.cheflogik.com
+
+buildArgs:
+  NODE_ENV: production
+  VITE_API_URL: https://api.cheflogik.com/api/v1
+  VITE_STAFF_APP_URL: https://app.cheflogik.com
+
+domains:
+  - admin.cheflogik.com
+
+secrets:
+  provider: infisical
+  projectId: "80c1f3ad-b1ed-4eff-8330-c807e55bc227"
+  environment: "production"
+  secretPath: "/"
+  tags:
+    - "admin"
+  stripPrefix: ""
+
+web:
+  containerPort: 5600
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  hpa:
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  livenessProbe:
+    path: /health
+    initialDelaySeconds: 30
+    periodSeconds: 15
+  readinessProbe:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 10

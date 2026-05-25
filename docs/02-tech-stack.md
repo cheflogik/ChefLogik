@@ -229,6 +229,24 @@ class CreateOrderRequest extends FormRequest {
 
 All queues live within the `/cheflogik` RabbitMQ vhost. Messages persist to disk — jobs survive RabbitMQ restarts.
 
+### S3 File Storage Conventions
+
+All S3 uploads follow a `public/private` zone layout per tenant:
+
+```
+tenants/{tenant_id}/public/{type}/...    ← bucket policy allows public GET
+tenants/{tenant_id}/private/{type}/...  ← no public access; pre-signed URLs only
+```
+
+**The pattern for every new upload type:**
+
+1. Add a static path method to `App\Support\StoragePath`
+2. In the service: call `StoragePath::{methodName}()` for the path, then `Storage::disk('s3')->put($path, $content)`
+3. In the API Resource: call `StoragePath::publicUrl($path)` or `StoragePath::privateUrl($path, $ttlMinutes)`
+4. Store only the path in the DB column — never the full URL
+
+See `decisions.md` Decision 12 for rationale and the full list of current types.
+
 ---
 
 ## Frontend — React 19 / TypeScript / MobX-State-Tree

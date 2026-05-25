@@ -137,9 +137,27 @@
 ## Decision 12 — File Storage
 
 **Date decided:** 2026-04-07
-**Decision:** AWS S3
-**Package:** `league/flysystem-aws-s3-v3`
-**Used for:** Menu item photos, staff documents, payroll CSV exports, order receipts, analytics report exports, temperature log exports, GDPR data exports, event run sheet PDFs
+**Updated:** 2026-05-25
+**Decision:** AWS S3 (`league/flysystem-aws-s3-v3`)
+**Used for:** All tenant file uploads and exports.
+
+### Folder convention (mandatory for all uploads)
+
+```
+tenants/{tenant_id}/public/{type}/...    ← publicly accessible via bucket policy
+tenants/{tenant_id}/private/{type}/...  ← no public access; served via pre-signed URLs
+```
+
+**Current public types:** `menu-items`, `menu-categories`, `profile-photos`
+**Current private types:** `staff-documents`, `exports`, `gdpr-exports`
+
+### Rules
+
+1. **Always use `App\Support\StoragePath`** to build paths — never hardcode path strings in services or jobs.
+2. **DB always stores the path, never the full URL.** Resources resolve path → URL at response time using `StoragePath::publicUrl()` or `StoragePath::privateUrl()`.
+3. **Public files** are served via the permanent S3 URL (`StoragePath::publicUrl()`). The bucket policy grants `s3:GetObject` on `tenants/*/public/*` — adding a new public type requires no policy change.
+4. **Private files** are served via pre-signed URLs (`StoragePath::privateUrl($path, $ttlMinutes)`). Default TTL: 60 min. Use longer TTLs only for async exports (24 h) and GDPR exports (72 h).
+5. **Adding a new upload type:** add a static method to `StoragePath`, choose the zone (public/private), use it in the service, resolve in the resource. No bucket policy change needed for either zone.
 
 ---
 
