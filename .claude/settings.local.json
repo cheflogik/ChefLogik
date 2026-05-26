@@ -48,7 +48,12 @@
       "Bash(rm /Users/deepak/Projects/ChefLogik/api/resources/css/app.css)",
       "Bash(open *)",
       "Bash(redis-cli -h 127.0.0.1 -p 6379 AUTH ChefLogik tTnKbrTkayki4)",
-      "Bash(redis-cli -h 127.0.0.1 -p 6379 AUTH tTnKbrTkayki4)"
+      "Bash(redis-cli -h 127.0.0.1 -p 6379 AUTH tTnKbrTkayki4)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git *)",
+      "Bash(awk *)",
+      "Read(//Users/deepak/.claude/plans/**)"
     ]
   }
 }
