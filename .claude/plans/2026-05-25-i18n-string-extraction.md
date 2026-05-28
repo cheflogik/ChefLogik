@@ -6,38 +6,50 @@
 
 ---
 
-## ⚡ RESUME STATUS — last updated 2026-05-27 (session 19)
+## ⚡ RESUME STATUS — last updated 2026-05-28 (session 21)
 
-### Fully Complete ✅
+### ❌ ROOT CAUSE OF ENGLISH STILL SHOWING ON ALL PAGES
+
+**Diagnosis (2026-05-28):** `en-US/web.php` grew to **1,715 keys** across 5 post-locale-build commits, but all non-en-US locale files were never updated past their initial ~304 keys. Result: ~82% of all `t()` calls fall back to English for every non-en-US locale. The wiring (`t()` calls) is correct — the translation data files are incomplete.
+
+Key counts (web.php):
+- `en-US`: 1,715 keys (source of truth)
+- `de-DE`, `es-ES`, `pl-PL`, `it-IT`: ~304 keys each → **1,411 missing**
+- `fr-FR`: ~327 keys → **1,388 missing**
+- `de-AT`: ~306 keys → **1,409 missing**
+- `en-GB`: 2 keys → **1,713 missing**
+
+Key counts (admin.php):
+- `en-US`: 164 keys
+- All non-en-US: ~114 keys → **~50 missing each** (except en-GB which is complete)
+
+### Wiring tasks: all complete ✅
 - **Task 1** ✅ — `admin/src/hooks/useT.ts` created
-- **Task 2** ✅ — `portal` section already existed in `en-US/web.php` with all keys
-- **Task 3** ✅ — All non-en-US `web.php` files complete (all 7 locales); en-GB adds £ tier overrides
-- **Task 4** ✅ — All non-en-US `admin.php` files complete (all 7 locales)
-- **Task 5** ✅ — All admin wiring complete (all 9 screens + login + layout)
-- **Task 6** ✅ — All web layout files wired (Sidebar, Header, UserDropdown, UserMenu, NotifDropdown, MessagesDropdown, BranchSwitcher, NoBranchSelected, AppFooter)
+- **Task 2** ✅ — `portal` section in `en-US/web.php`
+- **Task 3** ⚠️ PARTIAL — Initial locale files built with ~304 keys; 1,411 keys added to en-US afterward were never back-ported (see Task 14)
+- **Task 4** ⚠️ PARTIAL — admin.php locale files missing ~50 keys each (see Task 14)
+- **Task 5** ✅ — All admin wiring complete
+- **Task 6** ✅ — All web layout files wired
 - **Task 7** ✅ — All auth screens wired
 - **Task 8** ✅ — Dashboard, Orders, KDS wired
-- **Task 9** ✅ — Menu AND inventory modules fully wired and committed
-- **Task 10** ✅ — Reservations, Events, and Staff modules fully wired and committed
-- **Task 11** ✅ — Customers, Analytics, Settings, Branches, Roles fully wired and committed
-- **Task 13** ✅ — Shared UI components wired and committed:
-  - Committed (api): `feat(i18n): add common.clear, common.no_records, common.total_count keys`
-  - Committed (web): `feat(i18n): wire t() in shared UI components — string extraction complete`
-  - `ConfirmModal.tsx`: Cancel/confirmLabel default → `t('common.cancel')` / `t('common.confirm')`
-  - `DataTable.tsx`: emptyMessage fallback, All filter, Clear button, From/To labels+placeholders, pagination (page_of, total_count, Previous, Next)
-  - `KanbanBoard.tsx`, `KanbanColumn.tsx`, `PageHeader.tsx`: no hardcoded strings (all via props)
+- **Task 9** ✅ — Menu AND inventory modules wired
+- **Task 10** ✅ — Reservations, Events, Staff modules wired
+- **Task 11** ✅ — Customers, Analytics, Settings, Branches, Roles wired
+- **Task 12** ✅ — Profile, Notifications, LandingCms, Portal wired
+- **Task 13** ✅ — Shared UI components wired
 
-- **Task 12** ✅ — Profile, Notifications, LandingCms, Portal fully wired and committed:
-  - Committed (api): `feat(i18n): add missing common and landing_cms translation keys`
-  - Committed (web): `feat(i18n): wire t() in profile, LandingCms components and portal routes`
-
-### ⚠️ NEXT: Task 13 ✅ COMPLETE
+### Secondary gap: un-wired components (see Task 15)
+- `orders/disputes.tsx` — never wired; has column labels, button labels, error messages
+- `messaging/ChatPage.tsx`, `ConversationList.tsx`, `MessageInput.tsx` — hardcoded "Chats", "Search messages or users", "Enter Message…", "Messaging is not enabled"
+- `landing-cms/seo.tsx`, `featured-items.tsx`, `social-feeds.tsx`, `reviews.tsx` — hardcoded headings and permission messages
+- `menu/items/$itemId.tsx` — nutritional info panel: "Calories", "Total fat", "Saturated fat", "Carbohydrate", "Sugars", "Fibre", "Protein", "Sodium"
+- `orders/$orderId.tsx` — "Total" table header, "Add Item" label still hardcoded
 
 ---
 
 ## ⚡ NEXT RESUME POINT
 
-**ALL TASKS COMPLETE. i18n string extraction is done. Ready to commit.**
+**NEXT: Task 15 (wire remaining un-wired components)**
 
 ### Session 20 additions (2026-05-27)
 Fixed remaining hardcoded strings missed in earlier sessions:
@@ -1798,23 +1810,211 @@ git commit -m "feat(i18n): complete i18n wiring for admin app"
 
 ---
 
+## Task 14 — Back-port all missing keys to non-en-US locale files
+
+**Root cause of English showing on all pages.** `en-US/web.php` has 1,715 keys; all other locale files have only ~304. This task adds the missing ~1,411 translations per locale.
+
+**Files:**
+- `api/lang/de-DE/web.php` — add 1,411 missing keys (German)
+- `api/lang/fr-FR/web.php` — add 1,388 missing keys (French)
+- `api/lang/de-AT/web.php` — add 1,409 missing keys (German/AT — near-identical to de-DE)
+- `api/lang/es-ES/web.php` — add 1,411 missing keys (Spanish)
+- `api/lang/pl-PL/web.php` — add 1,411 missing keys (Polish)
+- `api/lang/it-IT/web.php` — add 1,411 missing keys (Italian)
+- `api/lang/en-GB/web.php` — add 1,713 missing keys (British English)
+- `api/lang/de-DE/admin.php`, `fr-FR/admin.php`, etc. — add ~50 missing keys each
+
+**Approach:** For each locale, compute missing keys via `array_diff_key(en_flat, locale_flat)`. Add translations grouped by section at the end of each file. The controller merges en-US as fallback so any missed key is harmless — but the goal is full coverage.
+
+**Helper command to get missing keys per locale:**
+```bash
+php -r "
+function flatten(\$arr, \$prefix = '') {
+  \$flat = [];
+  foreach (\$arr as \$k => \$v) {
+    \$key = \$prefix ? \"\$prefix.\$k\" : \$k;
+    if (is_array(\$v)) \$flat = array_merge(\$flat, flatten(\$v, \$key));
+    else \$flat[\$key] = \$v;
+  }
+  return \$flat;
+}
+\$en = flatten(require 'lang/en-US/web.php');
+\$de = flatten(require 'lang/de-DE/web.php');
+\$missing = array_diff_key(\$en, \$de);
+foreach (\$missing as \$k => \$v) echo \"\$k => \$v\n\";
+" 2>&1 | head -50
+```
+
+**Sections missing per locale (de-DE, same for others):**
+- `menu`: 273 keys — modifiers, allergens, nutrition panel, branch override details
+- `inventory`: 189 keys — GRN details, purchase order fields, stocktake, waste log detail
+- `analytics`: 135 keys — all dashboard stat labels, chart axis labels, filter labels
+- `orders`: 121 keys — order detail page, dispute fields, promo code fields, delivery zone fields
+- `reservations`: 83 keys — floor designer labels, waitlist fields, table popup detail
+- `customers`: 82 keys — customer profile detail, loyalty transaction labels
+- `staff`: 78 keys — shift detail, attendance detail, leave form, payroll fields
+- `profile`: 70 keys — all profile section labels added in session 12
+- `events`: 58 keys — event detail page, corporate accounts, spaces, packages
+- `portal`: 54 keys — portal routes added in session 12
+- `common`: 52 keys — action buttons, status badges, form field labels
+- `landing_cms`: 48 keys — template settings, CMS editor labels
+- `onboarding`: 38 keys — onboarding wizard steps
+- `auth`: 34 keys — sign-in, OTP, forgot password, onboarding screens
+- `settings`: 26 keys — delegate settings, tenant/branch group labels
+- `branches`: 20 keys — branch form fields
+- `kds`: 19 keys — KDS detail labels
+- `roles`: 19 keys — role builder labels
+- `dashboard`: 12 keys — live view, stat card labels
+
+**Step 1: Update de-DE/web.php**
+
+- [ ] Add all 1,411 missing keys with German translations
+- Strategy: append each missing section's keys inside the existing section array (or add the section if it only partially exists)
+
+**Step 2: Update de-AT/web.php**
+
+- [ ] Copy de-DE translations verbatim (de-AT is identical except a handful of regional terms that can be added later)
+
+**Step 3: Update fr-FR/web.php**
+
+- [ ] Add 1,388 missing keys with French translations
+
+**Step 4: Update es-ES/web.php**
+
+- [ ] Add 1,411 missing keys with Spanish translations
+
+**Step 5: Update pl-PL/web.php**
+
+- [ ] Add 1,411 missing keys with Polish translations
+
+**Step 6: Update it-IT/web.php**
+
+- [ ] Add 1,411 missing keys with Italian translations
+
+**Step 7: Update en-GB/web.php**
+
+- [ ] Copy all en-US keys; apply British spelling changes: `-ize` → `-ise`, `color` → `colour`, `flavor` → `flavour`, `organize` → `organise`, `customize` → `customise`, `center` → `centre`, `fiber` → `fibre`, `check` → `cheque` (financial), `program` → `programme` (non-software)
+
+**Step 8: Update admin.php locale files (~50 keys each)**
+
+- [ ] For each locale, add the ~50 missing admin.php keys (tenants, billing, analytics, health, audit, support, users, flags sections added post Task 4)
+
+**Step 9: Clear translation cache and verify**
+
+```bash
+cd /Users/deepak/Projects/ChefLogik/api
+# Clear all locale caches
+for locale in de-DE fr-FR de-AT es-ES pl-PL it-IT en-GB; do
+  php artisan cache:forget "translations:${locale}:web"
+  php artisan cache:forget "translations:${locale}:admin"
+done
+```
+
+Then verify key counts match:
+```bash
+php -r "
+function flatten(\$arr, \$prefix = '') {
+  \$flat = [];
+  foreach (\$arr as \$k => \$v) {
+    \$key = \$prefix ? \"\$prefix.\$k\" : \$k;
+    if (is_array(\$v)) \$flat = array_merge(\$flat, flatten(\$v, \$key));
+    else \$flat[\$key] = \$v;
+  }
+  return \$flat;
+}
+\$en = flatten(require 'lang/en-US/web.php');
+foreach (['de-DE','fr-FR','de-AT','es-ES','pl-PL','it-IT','en-GB'] as \$l) {
+  \$loc = flatten(require \"lang/\$l/web.php\");
+  \$missing = count(array_diff_key(\$en, \$loc));
+  echo \"\$l: \$missing missing\" . PHP_EOL;
+}
+" 2>&1
+```
+Expected: all locales show `0 missing`.
+
+**Step 10: Commit**
+
+```bash
+cd /Users/deepak/Projects/ChefLogik/api
+git add lang/
+git commit -m "feat(i18n): back-port all 1411 missing web.php and admin.php keys to all 7 locale files"
+```
+
+---
+
+## Task 15 — Wire remaining un-wired components
+
+**Secondary gap: components that were never wired with t() during sessions 7–13.**
+
+### 15a — `orders/disputes.tsx`
+
+- [ ] Add `import { useT } from '@/hooks/useT'`; wrap component in `observer()`
+- [ ] Add `const t = useT()`
+- [ ] Wire strings: page title, column labels (order, platform, reason, claimed, deadline, status), row actions (Respond button), modal (Respond to Dispute heading, Response label, placeholder, submit/cancel buttons), status badges (Resolved, Responded), error message
+- [ ] Add PHP keys to `en-US/web.php` `orders` section: `disputes_title`, `disputes_respond`, `disputes_response_label`, `disputes_response_placeholder`, `disputes_submit`, `disputes_resolved`, `disputes_responded`, `disputes_col_order`, `disputes_col_platform`, `disputes_col_reason`, `disputes_col_claimed`, `disputes_col_deadline`, `disputes_col_status`
+- [ ] Add German (and other locale) equivalents to Task 14's batch
+
+### 15b — Messaging components
+
+- [ ] `messaging/ConversationList.tsx`: add `useT()`, wire `"Chats"` → `t('nav.messages')`, placeholder `"Search messages or users"` → add `messages.search_placeholder` key
+- [ ] `messaging/ChatPage.tsx`: add `useT()`, wire `"Messaging is not enabled"` → add `messages.not_enabled` key
+- [ ] `messaging/MessageInput.tsx`: add `useT()`, wire placeholder `"Enter Message…"` → add `messages.input_placeholder` key
+- [ ] Add PHP keys to `en-US/web.php` `messages` section: `search_placeholder`, `not_enabled`, `input_placeholder`
+
+### 15c — Landing CMS route pages
+
+Four route files delegate to wired sub-components but each has an inline heading + permission message that is hardcoded:
+
+- [ ] `landing-cms/seo.tsx`: add `useT()`, wire `"SEO & Metadata"` and description and permission message
+- [ ] `landing-cms/featured-items.tsx`: add `useT()`, wire `"Featured Items"` and description and permission message
+- [ ] `landing-cms/social-feeds.tsx`: add `useT()`, wire heading + description + permission message
+- [ ] `landing-cms/reviews.tsx`: add `useT()`, wire heading + description + permission message
+- [ ] Add PHP keys to `en-US/web.php` `landing_cms` section: `seo_title`, `seo_desc`, `featured_title`, `featured_desc`, `social_title`, `social_desc`, `reviews_title`, `reviews_desc`, `no_permission`
+
+### 15d — Menu items nutritional panel (`menu/items/$itemId.tsx`)
+
+- [ ] Wire the 8 nutritional label strings: `"Calories"`, `"Total fat"`, `"Saturated fat"`, `"Carbohydrate"`, `"Sugars"`, `"Fibre"`, `"Protein"`, `"Sodium"`
+- [ ] Add PHP keys to `en-US/web.php` `menu` section: `nut_calories`, `nut_total_fat`, `nut_saturated_fat`, `nut_carbohydrate`, `nut_sugars`, `nut_fibre`, `nut_protein`, `nut_sodium`
+
+### 15e — `orders/$orderId.tsx` remaining strings
+
+- [ ] Wire `"Total"` table header (→ `t('common.total')`)
+- [ ] Wire `"Add Item"` label (→ add `orders.add_item` key)
+
+### 15f — Lint and commit
+
+```bash
+cd /Users/deepak/Projects/ChefLogik/web && npm run lint
+# Expect ~70 pre-existing errors
+
+git add src/
+git commit -m "feat(i18n): wire remaining un-wired components (disputes, messaging, landing-cms pages, menu nutritional panel)"
+
+cd /Users/deepak/Projects/ChefLogik/api
+git add lang/en-US/web.php
+git commit -m "feat(i18n): add translation keys for disputes, messaging, landing-cms, and nutritional panel"
+```
+
+---
+
 ## Self-Review
 
 **Spec coverage check:**
-- ✓ `/admin` `useT()` hook — Task 1 ✅ DONE
-- ✓ `portal` lang section — Task 2 ✅ DONE
-- ○ Non-en-US web.php completion — Task 3 ⚠️ PARTIAL (new keys from sessions 8–9 not yet translated)
-- ✓ Non-en-US admin.php completion — Task 4 ✅ DONE
-- ✓ Admin app full wiring — Task 5 ✅ DONE
-- ✓ Web Sidebar structural change (tKey) — Task 6 ✅ DONE
-- ✓ Web layout components — Task 6 ✅ DONE
-- ✓ Web auth screens — Task 7 ✅ DONE
-- ✓ Web dashboard + orders + KDS — Task 8 ✅ DONE
-- ✓ Web menu + inventory — Task 9 ✅ DONE
-- ✓ Web reservations + events + staff — Task 10 ✅ DONE
-- ✓ Web customers + analytics + settings + branches + roles — Task 11 ✅ DONE
-- ✓ Web profile + notifications + landing CMS + portal — Task 12 ✅ ALL FILES WIRED — Step 5 (lint + commit) pending
-- ○ Shared UI components — Task 13 ⬜ NOT STARTED
+- ✓ `/admin` `useT()` hook — Task 1 ✅
+- ✓ `portal` lang section — Task 2 ✅
+- ○ Non-en-US web.php completion — Task 3 ⚠️ PARTIAL → **Task 14 fixes this**
+- ○ Non-en-US admin.php completion — Task 4 ⚠️ PARTIAL → **Task 14 fixes this**
+- ✓ Admin app full wiring — Task 5 ✅
+- ✓ Web Sidebar + layout — Task 6 ✅
+- ✓ Web auth screens — Task 7 ✅
+- ✓ Web dashboard + orders + KDS — Task 8 ✅
+- ✓ Web menu + inventory — Task 9 ✅
+- ✓ Web reservations + events + staff — Task 10 ✅
+- ✓ Web customers + analytics + settings + branches + roles — Task 11 ✅
+- ✓ Web profile + LandingCms + portal — Task 12 ✅
+- ✓ Shared UI components — Task 13 ✅
+- ✓ Back-port all missing keys to all locale files — **Task 14** ✅ COMPLETE (2026-05-28, all 7 locales, 0 missing)
+- ○ Wire remaining un-wired components — **Task 15** ⬜ NOT STARTED
 
 **Acceptable un-translated strings (do NOT replace):**
 - Product/brand names: `'ChefLogik'`, `'Platform Admin'`, `'SOC 2 Type II'`, `'AES-256 Encryption'`
