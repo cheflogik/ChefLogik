@@ -449,7 +449,7 @@ INDEX (tenant_id, branch_id, status)
 id, tenant_id, branch_id (FK), table_id (FK), customer_profile_id (FK), party_size,
 guest_name, guest_phone, guest_email, occasion, special_requests,
 reservation_date, reservation_time, duration_minutes, status (ENUM confirmed/arrived/seated/completed/no_show/cancelled),
-booking_channel, deposit_amount, stripe_payment_intent_id, reminder_sent_24h, reminder_sent_2h,
+booking_channel, deposit_required, deposit_amount, stripe_payment_intent_id, reminder_sent_24h, reminder_sent_2h,
 cancelled_at, cancellation_reason, created_at, updated_at
 INDEX (tenant_id, branch_id, reservation_date, status)
 INDEX (tenant_id, customer_profile_id)

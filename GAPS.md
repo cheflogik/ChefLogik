@@ -33,8 +33,8 @@
 ## 3. Backend Feature Gaps
 
 ### Reservations
-- [ ] No-show deposit requirement flag when `no_show_count >= threshold` (blocked by B2 — tenant-level count never written)
-- [ ] Loyalty member no-show forgiveness (configurable per tier)
+- [x] ~~No-show deposit requirement flag~~ — ✓ FIXED 2026-06-12: `reservations.deposit_required` (merged into create migration — migrate:fresh needed) set in `ReservationService::create` when tenant-scoped `no_show_count` minus per-tier forgiveness ≥ `reservations.no_show_deposit_threshold` setting (default 2); exposed in `ReservationResource`.
+- [x] ~~Loyalty member no-show forgiveness~~ — ✓ FIXED 2026-06-12: `loyalty.no_show_forgiveness_{bronze,silver,gold}` settings (default 1 each) subtracted from the count before the threshold check; counts stay accurate, forgiveness applies at flag time only.
 
 ### Customers & Loyalty
 - [ ] Event booking 2× loyalty multiplier (LoyaltyService PHPDoc says "handled by caller" — no caller does)
