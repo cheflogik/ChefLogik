@@ -348,3 +348,19 @@ _Record any architectural decisions made during development here. Date every ent
 - `ReverseLoyaltyPointsJob` (counterpart of `IssueLoyaltyPointsJob`) dispatched by `RefundEngine` after both full and partial refunds
 - Points the customer already **redeemed** on the refunded order are NOT re-credited, and `lifetime_spend`/`lifetime_visits` recorded at completion are NOT decremented — points clawback only
 - Tier is not re-evaluated on reversal — downgrades remain the weekly batch job's responsibility (30-day grace)
+
+---
+
+## Decision 29 — Customer Profile Merge (Platform-Wide, Reversible 30 Days)
+
+**Date decided:** 2026-06-12
+**Decision:** Manual profile merge (`POST /v1/customers/merge`) is **platform-wide**: all of the secondary profile's data across every tenant is repointed to the primary, matching the documented outcome "all history, points, notes consolidated into primary; secondary archived (status='anonymised')". Reversible for 30 days via `POST /v1/customers/merge/{id}/revert`.
+**Rationale:** Duplicates originate at the platform level (landing OTP signups — Decision 3 makes `customer_profiles` platform-level), so a tenant-scoped merge would leave the duplicate alive and walk-in matching would keep flagging it. The 30-day revert (full pre-merge snapshot in the new `customer_merges` table) is the safety net for the cross-tenant blast radius.
+**Implementation (`CustomerMergeService`):**
+- Guard: both profiles must be active AND enrolled at the initiating staff member's tenant (`customers.merge` permission)
+- Per-tenant `customer_tenant_profiles`: consolidated where both exist (points transferred via `adjustment` loyalty transactions, lifetime spend/visits/no-shows summed, notes concatenated, secondary row anonymised); moved wholesale where only the secondary is enrolled
+- Historical `loyalty_transactions` are repointed to the primary (consolidated history outweighs strict row-immutability here; `balance_after` values reflect the original per-profile chains); merge bookkeeping entries use `source_type='merge'`
+- Repointed: orders, reservations, waitlist entries, events, landing reviews, customer notifications, referral links; `analytics_customer_segments` rows are deleted (weekly job regenerates)
+- Secondary platform profile: `status='anonymised'`, portal tokens revoked (tokens are NOT restored on revert — customer re-logs in)
+- Revert restores snapshot values; points the primary legitimately earned after the merge are kept (clawback floored at zero); tiers/RFM left to the weekly recalculation jobs
+- Both merge and revert are written to the audit log

@@ -563,6 +563,7 @@ POST   /api/v1/customers                     → create + enrol (auto-creates cu
 GET    /api/v1/customers/{id}
 PATCH  /api/v1/customers/{id}
 POST   /api/v1/customers/merge               → merge duplicate profiles (Owner/Manager, logged, reversible 30d)
+POST   /api/v1/customers/merge/{id}/revert   → undo a merge within the 30-day window
 
 -- Loyalty
 GET    /api/v1/customers/{id}/loyalty        → points balance, tier, transaction history (cursor-paginated)

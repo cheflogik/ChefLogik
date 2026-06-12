@@ -717,6 +717,23 @@ created_at      TIMESTAMPTZ NOT NULL
 INDEX (tenant_id, customer_id, created_at DESC)
 ```
 
+### customer_merges
+```sql
+-- Manual profile merge log (Decision 29). Platform-wide merge, reversible 30 days.
+id              UUID PRIMARY KEY DEFAULT gen_random_uuid()
+tenant_id       UUID NOT NULL FK → tenants            -- initiating tenant
+primary_customer_id   UUID NOT NULL FK → customer_profiles
+secondary_customer_id UUID NOT NULL FK → customer_profiles
+snapshot        JSONB NOT NULL                        -- pre-merge state + moved record IDs
+performed_by    UUID NOT NULL FK → users
+reverted_at     TIMESTAMPTZ
+reverted_by     UUID FK → users
+created_at      TIMESTAMPTZ
+updated_at      TIMESTAMPTZ
+
+INDEX (tenant_id, created_at)
+```
+
 ### loyalty_campaigns
 ```sql
 id, tenant_id, name, campaign_type (ENUM birthday/churn_prevention/tier_nudge/post_event/promotional/milestone),
