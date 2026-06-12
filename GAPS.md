@@ -25,10 +25,10 @@
 ## 2. Security / Abuse Edge Cases
 
 - [x] ~~`POST /v1/landing/reservations` has no throttle~~ — ✓ FIXED 2026-06-12: `throttle:5,1` added in `routes/landing.php`.
-- [ ] Staff login has no per-IP rate limit — account lockout (5 failures) enables targeted lock-out DoS of known staff emails.
-- [ ] Reminders use long `->delay()` on RabbitMQ (up to weeks) with no reconciliation sweep — dropped delayed messages are never retried.
+- [x] ~~Staff login has no per-IP rate limit~~ — ✓ FIXED 2026-06-12: per-IP throttles on all five unauthenticated staff auth endpoints in `routes/api.php` (`throttle:10,1` on login + otp/verify; `throttle:5,1` on otp/send, forgot-password, reset-password).
+- [x] ~~Reminders use long `->delay()` on RabbitMQ with no reconciliation sweep~~ — ✓ FIXED 2026-06-12: `ReconcileReservationRemindersCommand` runs every 15 min, re-dispatches reminder jobs ≥20 min overdue with sent-flag unset (branch-local triggers per Decision 26; jobs' own guards prevent duplicates).
 - [ ] STOP opt-out only flips `sms_marketing`; transactional SMS (reminders, OTP) still attempted to opted-out numbers.
-- [ ] No loyalty points clawback on order refund (unconfirmed whether intentional).
+- [x] ~~No loyalty points clawback on order refund~~ — ✓ FIXED 2026-06-12 per **Decision 28**: proportional clawback (`floor(refunded × earn_rate_applied)`, capped at un-reversed earn, balance floored at 0) via `ReverseLoyaltyPointsJob` dispatched by `RefundEngine` on full + partial refunds; uses the previously-unused `reverse` transaction type.
 
 ## 3. Backend Feature Gaps
 

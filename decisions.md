@@ -310,3 +310,41 @@ _Record any architectural decisions made during development here. Date every ent
 - Active locale persisted in `localStorage` under key `cl_landing_locale`
 - Default locale: `en-US` (always included, cannot be removed)
 - The `LanguageSwitcher.tsx` component renders a locale picker in the template header/footer
+
+---
+
+## Decision 26 — Timezone Policy (Branch-Local)
+
+**Date decided:** 2026-06-12
+**Decision:** Time-based operations use the branch's timezone (`branches.timezone`), not server time. Tenant-wide operations (analytics daily windows, scheduled reports) use the tenant's **primary branch** timezone. Database timestamps remain stored as-is (UTC/server time) — conversion happens at the application boundary.
+**Rationale:** Reservation reminders, operating hours, RevPASH hours, and "daily" aggregation windows are business-local concepts. The `branches.timezone` column existed but was never read, causing reminders and reports to fire at wrong wall-clock times for tenants outside the server timezone (GAPS.md bugs B3/B4).
+**Implications:**
+- Reservation reminder triggers computed as `Carbon::parse($date . ' ' . $time, $branch->timezone)`
+- Analytics daily aggregation and scheduled report cadence checks evaluate "today"/"yesterday" in the tenant's primary branch timezone
+- RevPASH (when implemented) uses branch-local operating hours
+- New code reading or comparing business times MUST pass the branch timezone explicitly
+
+---
+
+## Decision 27 — Payment Idempotency-Key Strategy (Stable Client Key)
+
+**Date decided:** 2026-06-12
+**Decision:** The frontend generates **one** UUID per order payment attempt and reuses it for every retry of that attempt. A new key is generated only when a new payment attempt is explicitly started (e.g., after a failed/cancelled attempt is dismissed).
+**Rationale:** The previous implementation generated a fresh `randomUUID()` on every `createPayment()` call, so a double-click created two PaymentIntents — the Idempotency-Key header protected nothing (GAPS.md bug B6).
+**Implications:**
+- `/web` keeps the key in component/store state keyed by order ID until the payment succeeds or is restarted
+- Backend behaviour unchanged: `Idempotency-Key` header remains required on `POST /orders/{id}/payment` and `POST /events/{id}/payment`
+- A server-side guard (refuse second active PaymentIntent per order) is a possible future hardening, not in scope now
+
+---
+
+## Decision 28 — Loyalty Points Clawback on Refund (Proportional, Floor at Zero)
+
+**Date decided:** 2026-06-12
+**Decision:** When an order that earned loyalty points is refunded (full or partial), points are reversed proportionally: `floor(refunded_amount × earn_rate_applied)`, capped at the points still un-reversed for that order, and floored so the balance never goes below zero.
+**Rationale:** Without clawback, a customer could earn points, refund the order, and keep the points (refund-farming). Proportional reversal using the stored `earn_rate_applied` is exact even when tier/birthday multipliers applied at earn time. Flooring at zero matches `adjustPoints()` — no negative-balance UX exists anywhere in the apps.
+**Implementation:**
+- `LoyaltyService::reversePointsForRefund()` — creates a `reverse` LoyaltyTransaction (the enum case existed, previously unused); repeat partial refunds are capped by summing prior reversals for the order
+- `ReverseLoyaltyPointsJob` (counterpart of `IssueLoyaltyPointsJob`) dispatched by `RefundEngine` after both full and partial refunds
+- Points the customer already **redeemed** on the refunded order are NOT re-credited, and `lifetime_spend`/`lifetime_visits` recorded at completion are NOT decremented — points clawback only
+- Tier is not re-evaluated on reversal — downgrades remain the weekly batch job's responsibility (30-day grace)
