@@ -20,7 +20,7 @@
 | B5 | ✓ FIXED 2026-06-12 — processed-mark moved into job | `ProcessStripeWebhookJob` marks `stripe_event:{id}` only after successful handling; controller no longer pre-marks; job also self-skips replays already processed. | |
 | B6 | ✓ FIXED 2026-06-12 — stable client key (Decision 27) | `web/OrderService.createPayment` keeps one UUID per order in a module map, reused on retry, dropped on success. | |
 | B7 | ✓ FIXED 2026-06-12 — token refresh now `everyThirtyMinutes()` | `routes/console.php` | Refresh gap (30 min) stays safely under the 55-min token cache TTL; cron cannot express a true 50-min interval. |
-| B8 | Twilio STOP phone matching fragile | `TwilioWebhookController` | Exact match on `customer_profiles.phone` vs Twilio's E.164 format; duplicates → only `first()` profile updated. |
+| B8 | ✓ FIXED 2026-06-12 — E.164 normalisation centralised | `app/Support/Phone` + `CustomerProfile` set-mutator; landing OTP path normalises explicitly (raw attrs bypass mutator); webhook normalises `From` and updates **all** matches. | Pre-existing rows saved in non-E.164 formats are NOT backfilled — needs a data migration/command (ask before creating). WalkInMatchingService's UK 07/08→+44 inference was dropped for consistency. |
 
 ## 2. Security / Abuse Edge Cases
 
