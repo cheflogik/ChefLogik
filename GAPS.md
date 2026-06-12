@@ -16,7 +16,7 @@
 | B1 | ✓ FIXED 2026-06-12 — confirmation code now persisted | `reservations.confirmation_code` column (merged into create migration); generated in `ReservationService::create`, returned from persisted value, exposed in `ReservationResource`. | Tests not yet run — shared test Postgres was down. |
 | B2 | ✓ FIXED 2026-06-12 — no-show count now tenant-scoped | `markNoShow` increments `customer_tenant_profiles.no_show_count` (per schema doc); platform-level column no longer written. | Platform-level `customer_profiles.no_show_count` column is schema drift — consider dropping later. |
 | B3 | ✓ FIXED 2026-06-12 — reschedule re-dispatches reminders | `ReservationService::update` resets `reminder_sent_*` and calls `scheduleReminders()` on date/time change; jobs carry a `scheduledFor` guard and self-skip when stale. | |
-| B4 | ⚠️ PARTIAL — reminders fixed; crons still server-time | Reminder triggers now computed in `branches.timezone` (Decision 26). **Still open:** analytics daily windows + scheduled report cadence should use tenant primary-branch TZ. | Follow-up item, see §3 Analytics. |
+| B4 | ✓ FIXED 2026-06-12 (fully) — reminders + crons branch-local | Reminder triggers in `branches.timezone`; analytics daily windows + scheduled-report cadence now evaluate "today/yesterday" in tenant primary-branch TZ (Decision 26). `Tenant::primaryTimezone()` defines primary branch = **oldest branch** (no `is_primary` column). | Scheduler still *fires* at server 02:00/07:00 — only the evaluated dates/windows are branch-local. |
 | B5 | ✓ FIXED 2026-06-12 — processed-mark moved into job | `ProcessStripeWebhookJob` marks `stripe_event:{id}` only after successful handling; controller no longer pre-marks; job also self-skips replays already processed. | |
 | B6 | ✓ FIXED 2026-06-12 — stable client key (Decision 27) | `web/OrderService.createPayment` keeps one UUID per order in a module map, reused on retry, dropped on success. | |
 | B7 | ✓ FIXED 2026-06-12 — token refresh now `everyThirtyMinutes()` | `routes/console.php` | Refresh gap (30 min) stays safely under the 55-min token cache TTL; cron cannot express a true 50-min interval. |
@@ -45,7 +45,7 @@
 ### Analytics
 - [ ] COGS calculation (`opening_stock + purchases − closing_stock`) — only the permission slug exists
 - [ ] RevPASH — **not implemented anywhere** (the old "must respect special hours" framing understated this)
-- [ ] Branch-local time for analytics daily windows + scheduled report cadence (Decision 26 — remaining half of bug B4)
+- [x] ~~Branch-local time for analytics daily windows + scheduled report cadence~~ — ✓ FIXED 2026-06-12 (see B4)
 
 ### Menu
 - [ ] `GET /branches/{id}/qr-code` endpoint (blocks QR-per-branch UI)
