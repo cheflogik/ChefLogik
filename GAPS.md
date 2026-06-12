@@ -37,7 +37,7 @@
 - [x] ~~Loyalty member no-show forgiveness~~ — ✓ FIXED 2026-06-12: `loyalty.no_show_forgiveness_{bronze,silver,gold}` settings (default 1 each) subtracted from the count before the threshold check; counts stay accurate, forgiveness applies at flag time only.
 
 ### Customers & Loyalty
-- [ ] Event booking 2× loyalty multiplier (LoyaltyService PHPDoc says "handled by caller" — no caller does)
+- [x] ~~Event booking 2× loyalty multiplier~~ — ✓ FIXED 2026-06-12: `EventService::complete` dispatches `IssueEventLoyaltyPointsJob` → `LoyaltyService::awardPointsForEvent` (actual_spend × rate × tier × `loyalty.event_multiplier` setting, default 2.0; idempotent per event).
 - [ ] Points expiry mechanics **do not exist at all** (no 12-month warning, no 18-month forfeiture job) — liability accrues forever
 - [ ] 30-day downgrade grace period **warning notification** (downgrade scheduling itself works)
 - [ ] Manual profile merge endpoint (duplicates accumulate from landing OTP signups)
