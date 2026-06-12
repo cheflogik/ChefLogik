@@ -683,6 +683,7 @@ avg_visit_interval_days DECIMAL(6,1)
 acquisition_channel ENUM('online_booking','walk_in','loyalty_enrolment','delivery','referral','event')
 referred_by_id  UUID FK → customer_profiles
 no_show_count   SMALLINT DEFAULT 0
+points_expiry_warned_at TIMESTAMPTZ                -- 12-month inactivity warning sent at
 staff_notes     TEXT
 status          ENUM('active','inactive','anonymised','deletion_pending') DEFAULT 'active'
 created_at      TIMESTAMPTZ

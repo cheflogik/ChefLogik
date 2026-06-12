@@ -38,7 +38,7 @@
 
 ### Customers & Loyalty
 - [x] ~~Event booking 2× loyalty multiplier~~ — ✓ FIXED 2026-06-12: `EventService::complete` dispatches `IssueEventLoyaltyPointsJob` → `LoyaltyService::awardPointsForEvent` (actual_spend × rate × tier × `loyalty.event_multiplier` setting, default 2.0; idempotent per event).
-- [ ] Points expiry mechanics **do not exist at all** (no 12-month warning, no 18-month forfeiture job) — liability accrues forever
+- [x] ~~Points expiry mechanics~~ — ✓ FIXED 2026-06-12: daily `ExpireLoyaltyPointsJob` (03:40, analytics queue). 18-month inactivity → immutable `expire` transaction zeroes the balance; 12-month → email warning (SMS fallback) tracked in `customer_tenant_profiles.points_expiry_warned_at` (merged into create migration), re-armed by new activity. Activity = earn/redeem/bonus/adjustment (system expire/reverse excluded).
 - [ ] 30-day downgrade grace period **warning notification** (downgrade scheduling itself works)
 - [ ] Manual profile merge endpoint (duplicates accumulate from landing OTP signups)
 
