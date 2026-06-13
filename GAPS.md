@@ -78,7 +78,7 @@
 - [ ] Order history + reservation history tabs on customer detail (branch-visit tab exists)
 - [ ] Duplicate merge UI (backend endpoint shipped 2026-06-12 — no longer blocked)
 - [ ] GDPR data export trigger
-- [ ] Campaign list/CRUD UI (backend campaign routes exist)
+- [x] ~~Campaign list/CRUD UI~~ — ✓ FIXED 2026-06-13: `/customers/campaigns` route (list + create/edit/cancel/send-now) wired to existing campaign routes; gated by `customers.manage_campaigns` + `loyalty_campaigns` plan flag; Campaigns button on customers header.
 - [ ] Points expiry indicators (blocked by missing backend mechanics)
 - [ ] Tier progress bar (static text hints only); DOB field on profile
 
