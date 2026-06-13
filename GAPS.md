@@ -27,7 +27,7 @@
 - [x] ~~`POST /v1/landing/reservations` has no throttle~~ — ✓ FIXED 2026-06-12: `throttle:5,1` added in `routes/landing.php`.
 - [x] ~~Staff login has no per-IP rate limit~~ — ✓ FIXED 2026-06-12: per-IP throttles on all five unauthenticated staff auth endpoints in `routes/api.php` (`throttle:10,1` on login + otp/verify; `throttle:5,1` on otp/send, forgot-password, reset-password).
 - [x] ~~Reminders use long `->delay()` on RabbitMQ with no reconciliation sweep~~ — ✓ FIXED 2026-06-12: `ReconcileReservationRemindersCommand` runs every 15 min, re-dispatches reminder jobs ≥20 min overdue with sent-flag unset (branch-local triggers per Decision 26; jobs' own guards prevent duplicates).
-- [ ] STOP opt-out only flips `sms_marketing`; transactional SMS (reminders, OTP) still attempted to opted-out numbers.
+- [x] ~~STOP opt-out only flips `sms_marketing`; transactional SMS (reminders, OTP) still attempted to opted-out numbers.~~ — ✓ FIXED 2026-06-13 (**Decision 33**): STOP is now a hard opt-out of ALL SMS. New `sms_opted_out` flag in `communication_prefs` JSONB (no migration); webhook sets/clears it; `TwilioSmsProvider::send()` skips + logs any send to an opted-out number (central enforcement covers reminders, OTP, campaigns, expiry).
 - [x] ~~No loyalty points clawback on order refund~~ — ✓ FIXED 2026-06-12 per **Decision 28**: proportional clawback (`floor(refunded × earn_rate_applied)`, capped at un-reversed earn, balance floored at 0) via `ReverseLoyaltyPointsJob` dispatched by `RefundEngine` on full + partial refunds; uses the previously-unused `reverse` transaction type.
 
 ## 3. Backend Feature Gaps

@@ -416,3 +416,15 @@ _Record any architectural decisions made during development here. Date every ent
 - Also returns `waste_cost` (reported separately though already inside COGS), `gross_revenue` + `food_cost_pct` (= cogs/gross from `analytics_daily_revenue`), and a `by_category` COGS breakdown (`−Σ` non-GRN value grouped by `inventory_items.category`).
 - Branch filter optional (tenant-wide when omitted); WAC roll-back is an accepted approximation for arbitrary historical `to`.
 - `/web` Inventory analytics view (Group B item 5) consumes this; the existing `/analytics/inventory` report is left untouched.
+
+---
+
+## Decision 33 — SMS STOP Is a Hard Opt-Out of All SMS (Centrally Enforced)
+
+**Date decided:** 2026-06-13
+**Decision:** A customer's STOP reply opts them out of **all** SMS — transactional (reservation reminders, OTP, loyalty-expiry warnings) and marketing alike — not just marketing. The opt-out is recorded as a new `sms_opted_out` boolean inside the existing `customer_profiles.communication_prefs` JSONB (no migration) and enforced **centrally in `TwilioSmsProvider::send()`**.
+**Rationale:** GAPS.md §2 — the STOP webhook only flipped `sms_marketing`, so transactional sends kept being attempted to opted-out numbers. A carrier-level STOP blocks every SMS from the sender anyway (Twilio error 21610), so continuing to attempt transactional sends both violates the opt-out and fails. Central enforcement guarantees every call site (including future ones) honours the opt-out without each having to remember the check; the per-send phone lookup is cheap at this scale.
+**Implementation:**
+- Twilio webhook (`TwilioWebhookController`): STOP/STOPALL/UNSUBSCRIBE/CANCEL/END/QUIT → `sms_opted_out=true` (+ `sms_marketing=false`); START/UNSTOP/YES → `sms_opted_out=false` (+ `sms_marketing=true`). Applied to all profiles sharing the normalised number.
+- `TwilioSmsProvider::send()` normalises the recipient (`Phone::normalise`) and skips + logs the send if any platform-level `CustomerProfile` with that phone has `sms_opted_out=true`. `NullSmsProvider` (local) is unaffected.
+- Marketing still additionally honours `sms_marketing` at its call sites (`SendCampaignJob` already gates on it). OTP/registration to a non-opted-out number is unchanged.
