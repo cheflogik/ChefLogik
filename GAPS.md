@@ -83,8 +83,8 @@
 - [ ] Tier progress bar (static text hints only); DOB field on profile
 
 ### Branches
-- [ ] Operating hours editor (weekly schedule)
-- [ ] Special operating hours CRUD
+- [x] ~~Operating hours editor (weekly schedule)~~ — ✓ FIXED 2026-06-13: weekly operating-hours editor on branch edit page (per-day open/closed Switch + open/close TimePickers), saved via `operating_hours` on `PATCH /branches/{id}`.
+- [x] ~~Special operating hours CRUD~~ — ✓ FIXED 2026-06-13: special-hours section (list + add date/closed/times/reason + delete) wired to `GET/POST/DELETE /branches/{id}/hours`.
 - [ ] Branch settings (seat count, revenue targets, food-cost % target, waste threshold, delivery commission rates)
 
 ### Integrations (entire section missing)
