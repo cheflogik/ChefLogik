@@ -60,7 +60,7 @@
 ### Analytics & Reports
 - [ ] Inventory analytics view (COGS / food-cost % / waste cost) — also blocked by backend COGS gap
 - [ ] Staff analytics view (labour cost %, performance) — backend per-staff metrics also missing (mock data per new-ui plan)
-- [ ] Tax/VAT report view (backend endpoint exists)
+- [x] ~~Tax/VAT report view~~ — ✓ FIXED 2026-06-13: `/analytics/tax` page (gated by `analytics.tax_reports`) + AnalyticsNav tab. Date-range + branch filter, gross-revenue-by-tax-category table with totals row, consuming `GET /analytics/tax-report`. (Endpoint returns gross revenue per `menu_items.tax_category`, not a computed tax amount — view reflects that.)
 - [ ] Async export poll/download flow
 - [ ] Financial period close trigger + locked-period indicator
 - [x] ~~Scheduled report delivery config UI~~ — ✓ FIXED 2026-06-13: Analytics → Scheduled Reports tab (`analytics/scheduled-reports.tsx`); CRUD over `reporting.scheduled_reports` via dedicated `GET/PUT /v1/analytics/scheduled-reports` (`ScheduledReportController`, validates report config shape + lets you clear all). Fixed latent bug: setting was gated by non-existent `analytics.view_reports` slug → now `analytics.export`.
