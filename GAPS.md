@@ -119,7 +119,7 @@
 ## 6. Deferred (tracked, not scheduled)
 - Course tracking on floor view (`orders.current_course` enum + bump control) — per CLAUDE.md
 - Landing Phase 3 wave: review submission form, promotional banners, order tracking on landing, loyalty redemption at checkout, landing analytics events
-- Stripe Billing (manual billing for MVP — Decision 2); plan-limit enforcement has no teeth yet
+- Stripe Billing (manual billing for MVP — Decision 2). Plan-limit enforcement now has teeth: ✓ 2026-06-13 (Decision 30) — `plan.feature` middleware gates events/campaigns/custom-roles/export, `BranchService` enforces `max_branches`, `/modules` merges plan flags so `/web` nav auto-hides gated items.
 
 ## 7. Open Decisions
 

@@ -377,3 +377,14 @@ _Record any architectural decisions made during development here. Date every ent
 - `index` returns all four types as rows (configured placeholders when absent); secrets masked in `TenantIntegrationResource` (`••••` + last 4); `update` **merges** provided credential keys over stored ones so the UI never resubmits masked secrets, and ignores any value still containing `••••`
 - `SmsProviderInterface::send()` gained an optional `?string $tenantId`; all SMS call sites with tenant context (`SendReservationReminder24h/2h`, `SendCampaignJob`, `ExpireLoyaltyPointsJob`) pass it. Customer OTP (`CustomerOtpService`) stays platform-level (pre-auth, no tenant context)
 - Integration create/update written to the audit log (`integration.updated`); credential *values* never logged — only the list of changed keys
+
+### Plan-limit enforcement (same decision, GAPS.md §10 item 13)
+
+**Decision:** Subscription-plan feature flags (`subscription_plans.features` JSONB + `max_branches`) are enforced at the route boundary via a new `plan.feature:<flag>` middleware, plus a `max_branches` guard in `BranchService::create`. The `/v1/modules` endpoint additionally merges plan flags so the `/web` sidebar auto-hides plan-gated items.
+**Rationale:** Starter/Growth/Enterprise were functionally identical (Decision 2 left enforcement as a no-op). UI-only gating would violate the "API always re-validates" rule, so the gate lives in middleware; the merged `/modules` response is the UX layer on top.
+**Implementation:**
+- `App\Support\PlanFeatures` — single source of truth (per-request memoised `Tenant::with('plan')` lookup); tenants with no plan are unrestricted (MVP-safe)
+- `plan.feature` middleware → 403 `{code: 'plan_limit', feature}` so the frontend can prompt an upgrade vs. a permission denial
+- Gated route groups: `events.*` (`events`), `customers/campaigns` (`loyalty_campaigns`), custom-role **mutations** only — index/show stay open (`custom_roles`), `analytics/reports/export` (`export`)
+- `BranchService::create` enforces `max_branches` (counts tenant-scoped branches) → 403 `plan_limit`
+- `ModulesController` merges `events`/`inventory` (module-level) and adds `loyalty_campaigns`/`custom_roles`/`export` flags; `/web` Sidebar gains a `module?` field on nav items + `modules.isEnabled()` check; Roles page hides "New role" when `custom_roles` is off
