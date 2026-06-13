@@ -402,3 +402,17 @@ _Record any architectural decisions made during development here. Date every ent
 - Paginated (default 20, max 50): orders reverse-chron by `created_at`; reservations by `reservation_date` then `reservation_time` desc
 - Routes registered before the `/customers/{customer}` catch-all (static path precedence)
 - `/web` customer detail (`$customerId.tsx`) gains "Orders" and "Reservations" tabs; store holds paginated history keyed by customer id
+
+---
+
+## Decision 32 — COGS Calculation (Movement-Derived, Dedicated Endpoint)
+
+**Date decided:** 2026-06-13
+**Decision:** Cost of Goods Sold (`opening_stock + purchases − closing_stock`) is computed **movement-derived with no new schema**, served by a **dedicated** `GET /v1/analytics/cogs-report` gated by the previously-unused `inventory.view_cogs` permission.
+**Rationale:** GAPS.md §3 — only the `inventory.view_cogs` slug existed. The `stock_movements` table (signed `quantity`, `unit_cost` on GRN, `wac_before/after` on all types) plus the live WAC snapshot on `inventory_items` already contain everything needed, so no daily-valuation snapshot table/job was warranted for MVP scale. A dedicated endpoint keeps COGS access on its own permission (auditable, separate from the broader `analytics.inventory_analytics` dashboard) and cleanly feeds the `/web` inventory-analytics view.
+**Implementation (`App\Services\Analytics\CogsReportService`):**
+- Per-movement value = `quantity × COALESCE(unit_cost, wac_after, 0)` — GRN carries the purchase `unit_cost`; every other type (sale_deduction, waste, adjustment, stocktake_correction, transfer, cancellation_return) leaves `unit_cost` null and stores the per-unit WAC in `wac_after`, so the COALESCE selects the right cost basis. (Critical: deductions/waste do **not** set `unit_cost`, so the older `inventory` report's `quantity × unit_cost` undercounts — COGS must use the COALESCE.)
+- `closing = (Σ current_stock × wac) − Σ value(movements after `to`)` (rolls the live valuation back to period end); `opening = closing − Σ value(movements in [from,to])`; `purchases = Σ value(GRN in [from,to])`; `cogs = opening + purchases − closing`.
+- Also returns `waste_cost` (reported separately though already inside COGS), `gross_revenue` + `food_cost_pct` (= cogs/gross from `analytics_daily_revenue`), and a `by_category` COGS breakdown (`−Σ` non-GRN value grouped by `inventory_items.category`).
+- Branch filter optional (tenant-wide when omitted); WAC roll-back is an accepted approximation for arbitrary historical `to`.
+- `/web` Inventory analytics view (Group B item 5) consumes this; the existing `/analytics/inventory` report is left untouched.

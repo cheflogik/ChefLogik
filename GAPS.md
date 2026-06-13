@@ -43,7 +43,7 @@
 - [x] ~~Manual profile merge endpoint~~ — ✓ FIXED 2026-06-12 (backend) per **Decision 29**: `POST /v1/customers/merge` + `POST /v1/customers/merge/{id}/revert` (`customers.merge` permission). Platform-wide merge, snapshot in new `customer_merges` table, reversible 30 days, audit-logged. The §4 merge **UI** remains open (now unblocked).
 
 ### Analytics
-- [ ] COGS calculation (`opening_stock + purchases − closing_stock`) — only the permission slug exists
+- [x] ~~COGS calculation (`opening_stock + purchases − closing_stock`)~~ — ✓ FIXED 2026-06-13 (**Decision 32**): `CogsReportService` (movement-derived, no new schema) + `GET /analytics/cogs-report` gated by `inventory.view_cogs`. Per-movement value `quantity × COALESCE(unit_cost, wac_after, 0)`; returns opening/purchases/closing/cogs, waste_cost, food_cost_pct, and by-category breakdown.
 - [ ] RevPASH — **not implemented anywhere** (the old "must respect special hours" framing understated this)
 - [x] ~~Branch-local time for analytics daily windows + scheduled report cadence~~ — ✓ FIXED 2026-06-12 (see B4)
 
@@ -58,11 +58,11 @@
 ## 4. Frontend Gaps (`/web` unless noted)
 
 ### Analytics & Reports
-- [ ] Inventory analytics view (COGS / food-cost % / waste cost) — also blocked by backend COGS gap
+- [x] ~~Inventory analytics view (COGS / food-cost % / waste cost)~~ — ✓ FIXED 2026-06-13: `/analytics/inventory` page + AnalyticsNav tab (gated `inventory.view_cogs`), consumes `GET /analytics/cogs-report` — summary cards (COGS, food-cost %, waste, opening/purchases/closing, gross revenue) + COGS-by-category table.
 - [ ] Staff analytics view (labour cost %, performance) — backend per-staff metrics also missing (mock data per new-ui plan)
 - [x] ~~Tax/VAT report view~~ — ✓ FIXED 2026-06-13: `/analytics/tax` page (gated by `analytics.tax_reports`) + AnalyticsNav tab. Date-range + branch filter, gross-revenue-by-tax-category table with totals row, consuming `GET /analytics/tax-report`. (Endpoint returns gross revenue per `menu_items.tax_category`, not a computed tax amount — view reflects that.)
 - [ ] Async export poll/download flow
-- [ ] Financial period close trigger + locked-period indicator
+- [x] ~~Financial period close trigger + locked-period indicator~~ — ✓ FIXED 2026-06-13: `PeriodClosePanel` on the inventory analytics page (gated `analytics.period_close`) — branch + period-end form posts `POST /analytics/period-close` (surfaces the backend "locked stocktake required" 422); closed-period history read from `GET /analytics/audit-log?action=analytics.period_close` (shown when the user also holds `analytics.audit_log`).
 - [x] ~~Scheduled report delivery config UI~~ — ✓ FIXED 2026-06-13: Analytics → Scheduled Reports tab (`analytics/scheduled-reports.tsx`); CRUD over `reporting.scheduled_reports` via dedicated `GET/PUT /v1/analytics/scheduled-reports` (`ScheduledReportController`, validates report config shape + lets you clear all). Fixed latent bug: setting was gated by non-existent `analytics.view_reports` slug → now `analytics.export`.
 - [ ] Custom date-range picker (presets only)
 - [ ] Metric alert thresholds UI; custom report builder
