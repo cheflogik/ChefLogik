@@ -39,7 +39,7 @@
 ### Customers & Loyalty
 - [x] ~~Event booking 2× loyalty multiplier~~ — ✓ FIXED 2026-06-12: `EventService::complete` dispatches `IssueEventLoyaltyPointsJob` → `LoyaltyService::awardPointsForEvent` (actual_spend × rate × tier × `loyalty.event_multiplier` setting, default 2.0; idempotent per event).
 - [x] ~~Points expiry mechanics~~ — ✓ FIXED 2026-06-12: daily `ExpireLoyaltyPointsJob` (03:40, analytics queue). 18-month inactivity → immutable `expire` transaction zeroes the balance; 12-month → email warning (SMS fallback) tracked in `customer_tenant_profiles.points_expiry_warned_at` (merged into create migration), re-armed by new activity. Activity = earn/redeem/bonus/adjustment (system expire/reverse excluded).
-- [ ] 30-day downgrade grace period **warning notification** (downgrade scheduling itself works)
+- [x] ~~30-day downgrade grace period **warning notification**~~ — ✓ FIXED 2026-06-13: `RecalculateLoyaltyTiersJob` dispatches `SendTierDowngradeWarningJob` once, at the moment a downgrade is first scheduled. Email (`TierDowngradeWarningMail`) with SMS fallback (mirrors the points-expiry warning; SMS honours the Decision 33 opt-out); self-skips if the pending downgrade was cleared before it runs.
 - [x] ~~Manual profile merge endpoint~~ — ✓ FIXED 2026-06-12 (backend) per **Decision 29**: `POST /v1/customers/merge` + `POST /v1/customers/merge/{id}/revert` (`customers.merge` permission). Platform-wide merge, snapshot in new `customer_merges` table, reversible 30 days, audit-logged. The §4 merge **UI** remains open (now unblocked).
 
 ### Analytics
