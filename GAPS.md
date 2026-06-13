@@ -88,10 +88,10 @@
 - [ ] Branch settings (seat count, revenue targets, food-cost % target, waste threshold, delivery commission rates)
 
 ### Integrations (entire section missing)
-- [ ] Uber Eats / Wolt credential entry into `tenant_integrations`
-- [ ] Stripe Terminal reader pairing
-- [ ] Twilio configuration
-- [ ] Integration health view (`last_synced_at`, status)
+- [x] ~~Uber Eats / Wolt credential entry into `tenant_integrations`~~ — ✓ FIXED 2026-06-13: `GET/PUT /v1/integrations[/{type}]` (`TenantIntegrationController`, `integrations.manage` permission per **Decision 30**); `/web` Settings → Integrations tab (`settings/integrations.tsx`) with masked-secret credential forms + per-platform settings (auto-accept, menu-sync, commission %).
+- [x] ~~Stripe Terminal reader pairing~~ — ✓ FIXED 2026-06-13: Stripe Terminal credential entry (publishable/secret key, location ID) + capture-method setting in the same Integrations tab.
+- [x] ~~Twilio configuration~~ — ✓ FIXED 2026-06-13: Twilio credential entry (account SID, auth token, from number) + per-tenant SMS rewire — `TwilioSmsProvider` now prefers active tenant credentials, falls back to platform config (**Decision 30**); SMS call sites pass `tenant_id`.
+- [x] ~~Integration health view (`last_synced_at`, status)~~ — ✓ FIXED 2026-06-13: each card shows configured/active/inactive status badge + last-synced timestamp; secrets masked in `TenantIntegrationResource`.
 
 ### i18n (remainder of `.claude/plans/2026-05-25-i18n-string-extraction.md` Task 15)
 - [ ] 15a — `orders/disputes.tsx` not wired with `useT()`

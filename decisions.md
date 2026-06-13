@@ -364,3 +364,16 @@ _Record any architectural decisions made during development here. Date every ent
 - Secondary platform profile: `status='anonymised'`, portal tokens revoked (tokens are NOT restored on revert — customer re-logs in)
 - Revert restores snapshot values; points the primary legitimately earned after the merge are kept (clawback floored at zero); tiers/RFM left to the weekly recalculation jobs
 - Both merge and revert are written to the audit log
+
+---
+
+## Decision 30 — Tenant Integration Credentials UI + Per-Tenant Twilio
+
+**Date decided:** 2026-06-13
+**Decision:** The four external integrations (Uber Eats, Wolt, Stripe Terminal, Twilio) are managed by tenant staff through a Settings → Integrations tab backed by `GET /v1/integrations` and `PUT /v1/integrations/{type}`, gated by a new `integrations.manage` permission. The previously-decorative `tenant_integrations.twilio` row now actually drives SMS sending: `TwilioSmsProvider` prefers the tenant's own active credentials and falls back to the platform-level `config('sms.twilio.*')`.
+**Rationale:** GAPS.md §4 — the whole integrations UI was missing and the SMS provider ignored per-tenant credentials. A dedicated `integrations.manage` permission keeps credential access auditable and separate from display-preference settings.
+**Implementation:**
+- `integrations.manage` permission seeded to **Owner** + **Branch Manager** system roles (Branch Manager inherits all-but-`owners.manage`); `TenantIntegrationController` authorizes on it
+- `index` returns all four types as rows (configured placeholders when absent); secrets masked in `TenantIntegrationResource` (`••••` + last 4); `update` **merges** provided credential keys over stored ones so the UI never resubmits masked secrets, and ignores any value still containing `••••`
+- `SmsProviderInterface::send()` gained an optional `?string $tenantId`; all SMS call sites with tenant context (`SendReservationReminder24h/2h`, `SendCampaignJob`, `ExpireLoyaltyPointsJob`) pass it. Customer OTP (`CustomerOtpService`) stays platform-level (pre-auth, no tenant context)
+- Integration create/update written to the audit log (`integration.updated`); credential *values* never logged — only the list of changed keys
