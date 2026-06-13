@@ -66,7 +66,7 @@
 - [x] ~~Scheduled report delivery config UI~~ — ✓ FIXED 2026-06-13: Analytics → Scheduled Reports tab (`analytics/scheduled-reports.tsx`); CRUD over `reporting.scheduled_reports` via dedicated `GET/PUT /v1/analytics/scheduled-reports` (`ScheduledReportController`, validates report config shape + lets you clear all). Fixed latent bug: setting was gated by non-existent `analytics.view_reports` slug → now `analytics.export`.
 - [ ] Custom date-range picker (presets only)
 - [ ] Metric alert thresholds UI; custom report builder
-- [ ] Churn-risk drill-down list (count stat exists on customers dashboard)
+- [x] ~~Churn-risk drill-down list (count stat exists on customers dashboard)~~ — ✓ FIXED 2026-06-14: the "At Churn Risk" stat card on the customers dashboard is now clickable, opening an inline drill-down list of churn-risk customers (`GET /analytics/customers?min_churn=0.5`, matching the dashboard's `churn_risk_score > 0.5` count) with load-more paging. Transient query via apiClient + local useState (report-page idiom).
 
 ### Events
 - [x] ~~Deposit collection trigger~~ — ✓ FIXED 2026-06-13: deposit panel on event detail (Financials section) for proposal/confirmed events not yet paid; Stripe PaymentElement flow via `POST /events/{id}/payment`, stable idempotency key per attempt (Decision 27).
