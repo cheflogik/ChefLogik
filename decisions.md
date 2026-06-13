@@ -405,6 +405,18 @@ _Record any architectural decisions made during development here. Date every ent
 
 ---
 
+## Decision 35 — Loyalty Tier Thresholds Embedded in Customer-Detail Response
+
+**Date decided:** 2026-06-14
+**Decision:** The per-tenant loyalty tier thresholds (`loyalty.tier_silver_spend`, `loyalty.tier_gold_spend`, `loyalty.tier_silver_visits`, `loyalty.tier_gold_visits`) are returned as a `meta.loyalty_config` block on the `GET /v1/customers/{customer}` (show) response, so the customer-detail tier-progress bar can render without requiring the `settings.view` permission.
+**Rationale:** GAPS.md §4 — the tier-progress bar was static text because the thresholds were only reachable via `GET /settings/` (gated by `settings.view`). A staff member who can view a customer (`customers.view_full`) does not necessarily hold `settings.view`, so reading the settings endpoint would couple customer-view to a settings permission. The thresholds are tenant-wide and small, so embedding them in the detail response (which the page already fetches) avoids both an extra request and the permission mismatch.
+**Implementation:**
+- `CustomerController::show` injects `SettingsService` and returns a manual `{data, meta}` body (`ApiResponse::success` nests the resource under `data`, so `Resource::additional()` would not surface) — `meta.loyalty_config` holds the four resolved threshold values (tier rule is `spend ≥ X OR visits ≥ Y`).
+- `/web` `CustomerService.get` now returns `{ customer, loyaltyConfig }`; `CustomerStore` holds a single tenant-wide `loyaltyConfig` (frozen, populated by `fetchOne`); the customer-detail loyalty tab renders a progress bar (max of spend-ratio and visits-ratio toward the next tier) replacing the static `tier_*_next` hints. Gold shows the "highest tier" label; missing config falls back to the old static hint.
+- DOB capture (same GAPS line): the enroll form gains day + month `Select`s (no year — birthday loyalty perks); `EnrollCustomerRequest`/`CustomerService` already accepted `date_of_birth.{day,month}`, so this was frontend-only.
+
+---
+
 ## Decision 32 — COGS Calculation (Movement-Derived, Dedicated Endpoint)
 
 **Date decided:** 2026-06-13
