@@ -428,3 +428,15 @@ _Record any architectural decisions made during development here. Date every ent
 - Twilio webhook (`TwilioWebhookController`): STOP/STOPALL/UNSUBSCRIBE/CANCEL/END/QUIT → `sms_opted_out=true` (+ `sms_marketing=false`); START/UNSTOP/YES → `sms_opted_out=false` (+ `sms_marketing=true`). Applied to all profiles sharing the normalised number.
 - `TwilioSmsProvider::send()` normalises the recipient (`Phone::normalise`) and skips + logs the send if any platform-level `CustomerProfile` with that phone has `sms_opted_out=true`. `NullSmsProvider` (local) is unaffected.
 - Marketing still additionally honours `sms_marketing` at its call sites (`SendCampaignJob` already gates on it). OTP/registration to a non-opted-out number is unchanged.
+
+---
+
+## Decision 34 — GDPR Export Status Endpoint (Dedicated, Nested, `customers.gdpr`-gated)
+
+**Date decided:** 2026-06-13
+**Decision:** The async GDPR data-export poll is served by a **dedicated nested** endpoint `GET /v1/customers/{customer}/gdpr/export/{jobId}/status` gated by `customers.gdpr`, rather than reusing the analytics export poller `GET /v1/exports/{jobId}/status` (gated by `analytics.export`).
+**Rationale:** `GdprDataExportJob` already writes its result to the shared `export:{tenant}:{jobId}` cache convention, and the existing analytics poller reads that exact key — but it is gated by `analytics.export`. A staff member who manages GDPR (holds `customers.gdpr`) does not necessarily hold `analytics.export`, so reusing the analytics endpoint would couple GDPR access to an unrelated analytics permission. A dedicated nested endpoint keeps the permission scoping correct and matches the Decision 31/32 dedicated-endpoint precedent.
+**Implementation:**
+- `CustomerController::gdprExportStatus(Request, CustomerTenantProfile $customer, string $jobId)` — `authorize('customers.gdpr')`, `abort_if` on tenant mismatch (mirrors `gdprExport`/`branchVisits`), reads `cache()->get("export:{$customer->tenant_id}:{$jobId}")`, 404 when the key is absent/expired. No new cache key or job change — the existing `GdprDataExportJob` status shape (`processing` / `ready`+`url`+`expires_at` / `failed`+`message`) is returned as-is.
+- Route registered **before** the `/customers/{customer}/gdpr/export` and `/customers/{customer}` wildcards (static-path precedence).
+- `/web` customer detail GDPR tab: a "Data Export (Portability)" card (gated `customers.gdpr`) triggers `GET .../gdpr/export` (202 + `job_id`), then polls the status endpoint every 2.5 s via a `useEffect` keyed on the job id (transient UI state with local `useState`, not MST — consistent with the report-page idiom); renders a 72 h download link when `ready`. Download URL is the job's 72 h pre-signed S3 URL (Decision 12).
