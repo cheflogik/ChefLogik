@@ -94,9 +94,11 @@
 - [x] ~~Integration health view (`last_synced_at`, status)~~ — ✓ FIXED 2026-06-13: each card shows configured/active/inactive status badge + last-synced timestamp; secrets masked in `TenantIntegrationResource`.
 
 ### i18n (remainder of `.claude/plans/2026-05-25-i18n-string-extraction.md` Task 15)
-- [ ] 15a — `orders/disputes.tsx` not wired with `useT()`
-- [ ] 15b — `messaging/ConversationList.tsx`, `ChatPage.tsx`, `MessageInput.tsx` hardcoded strings
-- [ ] 15c — `landing-cms/seo.tsx`, `featured-items.tsx`, `social-feeds.tsx`, `reviews.tsx` headings/permission messages
+- [x] ~~15a — `orders/disputes.tsx` not wired with `useT()`~~ — ✓ FIXED 2026-06-13: wired (title, columns, respond modal, status badges); `orders.disputes_*` keys added.
+- [x] ~~15b — messaging components hardcoded strings~~ — ✓ FIXED 2026-06-13: `ConversationList`, `ChatPage`, `MessageInput` wired; `messages.search_placeholder/input_placeholder/not_enabled_subtitle/section_recent/section_all_staff/no_staff` added.
+- [x] ~~15c — landing-cms route pages~~ — ✓ FIXED 2026-06-13: `seo/featured-items/social-feeds/reviews` headings + permission messages wired; `landing_cms.{no_permission,seo_*,featured_*,social_*,reviews_*}` added.
+
+> Note: only `en-US` translations were added (other locales fall back to English, per the plan's known data-completeness gap — Task 14).
 - 15d (nutrition panel) and 15e (order detail) are **done** — commit f528892's "plan complete" overstated only these three.
 
 ### Cross-cutting

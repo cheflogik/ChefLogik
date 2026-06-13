@@ -1981,6 +1981,14 @@ Four route files delegate to wired sub-components but each has an inline heading
 - [ ] Wire `"Total"` table header (→ `t('common.total')`)
 - [ ] Wire `"Add Item"` label (→ add `orders.add_item` key)
 
+### ✅ Task 15 status — 2026-06-13
+
+15a, 15b, 15c **DONE** (Wave 4). 15d, 15e were already done. en-US keys added for all;
+other locales fall back to English (Task 14 data-completeness gap remains open).
+- 15a: `orders/disputes.tsx` wired; `orders.disputes_*` keys.
+- 15b: `messaging/{ConversationList,ChatPage,MessageInput}.tsx`; `messages.*` keys.
+- 15c: `landing-cms/{seo,featured-items,social-feeds,reviews}.tsx`; `landing_cms.{no_permission,seo_*,featured_*,social_*,reviews_*}`.
+
 ### 15f — Lint and commit
 
 ```bash
@@ -2014,7 +2022,7 @@ git commit -m "feat(i18n): add translation keys for disputes, messaging, landing
 - ✓ Web profile + LandingCms + portal — Task 12 ✅
 - ✓ Shared UI components — Task 13 ✅
 - ✓ Back-port all missing keys to all locale files — **Task 14** ✅ COMPLETE (2026-05-28, all 7 locales, 0 missing)
-- ○ Wire remaining un-wired components — **Task 15** ⬜ NOT STARTED
+- ○ Wire remaining un-wired components — **Task 15** ⚠️ PARTIAL (verified against code 2026-06-12): 15d (nutrition panel — wired via `t('menu.calories')` etc.) and 15e (`orders/$orderId.tsx` add-item) are DONE; 15a (`orders/disputes.tsx`), 15b (messaging components), 15c (`landing-cms/seo|featured-items|social-feeds|reviews.tsx`) are NOT done — tracked in `GAPS.md` §4 i18n
 
 **Acceptable un-translated strings (do NOT replace):**
 - Product/brand names: `'ChefLogik'`, `'Platform Admin'`, `'SOC 2 Type II'`, `'AES-256 Encryption'`
