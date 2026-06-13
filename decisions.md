@@ -388,3 +388,17 @@ _Record any architectural decisions made during development here. Date every ent
 - Gated route groups: `events.*` (`events`), `customers/campaigns` (`loyalty_campaigns`), custom-role **mutations** only — index/show stay open (`custom_roles`), `analytics/reports/export` (`export`)
 - `BranchService::create` enforces `max_branches` (counts tenant-scoped branches) → 403 `plan_limit`
 - `ModulesController` merges `events`/`inventory` (module-level) and adds `loyalty_campaigns`/`custom_roles`/`export` flags; `/web` Sidebar gains a `module?` field on nav items + `modules.isEnabled()` check; Roles page hides "New role" when `custom_roles` is off
+
+---
+
+## Decision 31 — Customer Order/Reservation History Endpoints
+
+**Date decided:** 2026-06-13
+**Decision:** Customer order-history and reservation-history are served by two dedicated nested endpoints — `GET /v1/customers/{customer}/orders` and `GET /v1/customers/{customer}/reservations` — mirroring the existing `/branch-visits` pattern, rather than overloading the branch-dashboard-oriented `/orders` and `/reservations` index endpoints with a `customer_profile_id` filter.
+**Rationale:** GAPS.md §4 listed the customer detail order/reservation tabs as "unblocked frontend," but neither index endpoint accepted a customer filter (orders: `branch_id, status, source, payment_status, date_from, date_to`; reservations: `branch_id, date, status`). Dedicated nested endpoints keep the customer's tenant-wide history self-contained, reuse the existing `OrderResource`/`ReservationResource`, and match the established `branch-visits` convention on `CustomerController`.
+**Implementation:**
+- `{customer}` binds to `CustomerTenantProfile` (tenant-scoped); history is queried by `$customer->customer_id` against the tenant-scoped `Order`/`Reservation` models, so results are tenant-wide (all branches) — consistent with `/branch-visits`
+- Both authorized on `customers.view_full`; `abort_if` on tenant mismatch like sibling methods
+- Paginated (default 20, max 50): orders reverse-chron by `created_at`; reservations by `reservation_date` then `reservation_time` desc
+- Routes registered before the `/customers/{customer}` catch-all (static path precedence)
+- `/web` customer detail (`$customerId.tsx`) gains "Orders" and "Reservations" tabs; store holds paginated history keyed by customer id

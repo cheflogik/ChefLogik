@@ -75,7 +75,7 @@
 
 ### Customers
 - [ ] Loyalty redemption at POS checkout
-- [ ] Order history + reservation history tabs on customer detail (branch-visit tab exists)
+- [x] ~~Order history + reservation history tabs on customer detail~~ — ✓ FIXED 2026-06-13 (**Decision 31**): two new tabs on customer detail (gated by `customers.view_full`), backed by new nested endpoints `GET /customers/{customer}/orders` + `/reservations` (paginated, tenant-wide, reverse-chron) — needed backend, was mis-scoped as unblocked. Load-more paging like the loyalty tab.
 - [x] ~~Duplicate merge UI~~ — ✓ FIXED 2026-06-13: `/customers/merge` route (gated by `customers.merge`) — two search-driven profile pickers (primary/secondary, mutually excluded), ConfirmModal, then a success panel with an in-session 30-day Undo (`POST /customers/merge/{id}/revert`). Merge button added to customers header. Sends platform `customer_profiles.id` (= `tenant_profile.customer_id`). Note: no merge-list/duplicate-detection endpoint exists, so revert is only actionable immediately after the merge in the same session.
 - [ ] GDPR data export trigger
 - [x] ~~Campaign list/CRUD UI~~ — ✓ FIXED 2026-06-13: `/customers/campaigns` route (list + create/edit/cancel/send-now) wired to existing campaign routes; gated by `customers.manage_campaigns` + `loyalty_campaigns` plan flag; Campaigns button on customers header.
