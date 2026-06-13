@@ -69,7 +69,7 @@
 - [ ] Churn-risk drill-down list (count stat exists on customers dashboard)
 
 ### Events
-- [ ] Deposit collection trigger (no Stripe PaymentIntent flow on event detail; backend `POST /events/{id}/payment` exists)
+- [x] ~~Deposit collection trigger~~ — ✓ FIXED 2026-06-13: deposit panel on event detail (Financials section) for proposal/confirmed events not yet paid; Stripe PaymentElement flow via `POST /events/{id}/payment`, stable idempotency key per attempt (Decision 27).
 - [ ] Linked orders view per event
 - [ ] Recurring events UI
 
