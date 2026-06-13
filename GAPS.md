@@ -63,7 +63,7 @@
 - [ ] Tax/VAT report view (backend endpoint exists)
 - [ ] Async export poll/download flow
 - [ ] Financial period close trigger + locked-period indicator
-- [ ] Scheduled report delivery config UI (backend setting + command exist — feature unusable without this)
+- [x] ~~Scheduled report delivery config UI~~ — ✓ FIXED 2026-06-13: Analytics → Scheduled Reports tab (`analytics/scheduled-reports.tsx`); CRUD over `reporting.scheduled_reports` via dedicated `GET/PUT /v1/analytics/scheduled-reports` (`ScheduledReportController`, validates report config shape + lets you clear all). Fixed latent bug: setting was gated by non-existent `analytics.view_reports` slug → now `analytics.export`.
 - [ ] Custom date-range picker (presets only)
 - [ ] Metric alert thresholds UI; custom report builder
 - [ ] Churn-risk drill-down list (count stat exists on customers dashboard)
