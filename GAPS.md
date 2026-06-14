@@ -70,7 +70,7 @@
 
 ### Events
 - [x] ~~Deposit collection trigger~~ — ✓ FIXED 2026-06-13: deposit panel on event detail (Financials section) for proposal/confirmed events not yet paid; Stripe PaymentElement flow via `POST /events/{id}/payment`, stable idempotency key per attempt (Decision 27).
-- [ ] Linked orders view per event
+- [x] ~~Linked orders view per event~~ — ✓ FIXED 2026-06-14 (**Decision 42**): no linkage existed (mis-tagged as frontend-only). Added nullable `orders.event_id` (merged into create_orders_table → migrate:fresh), `Order::event`/`Event::orders`, and `GET/POST/DELETE /events/{event}/orders` (events.view read, events.manage attach/detach, same-branch guard; meta.total_value). `/web` event-detail "Orders" tab: linked list + total + detach, attach via recent-unlinked-orders search.
 - [ ] Recurring events UI
 
 ### Customers
