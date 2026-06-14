@@ -433,6 +433,18 @@ _Record any architectural decisions made during development here. Date every ent
 
 ---
 
+## Decision 37 — Per-Staff Analytics (Extend `/analytics/staff`, Attendance-Derived Labour Cost)
+
+**Date decided:** 2026-06-14
+**Decision:** The existing `GET /v1/analytics/staff` (gated `analytics.staff_aggregate`) is extended with a `by_staff` breakdown. Per-staff **labour cost** is computed as `attendance_hours × users.employment.hourly_rate`; per-staff **performance** is attendance-based only (overtime shifts, late arrivals) — order revenue is **not** attributed to individual staff because no order-level server/waiter column exists. The previously-null `labour_cost_pct` is fixed to use `Σ(computed labour cost) ÷ Σ gross_revenue`.
+**Rationale:** GAPS.md §4 — per-staff metrics were missing/mock. The data to do it exists (`attendance_records.user_id` + clock in/out + is_overtime/is_late; `users.employment.hourly_rate`), but `analytics_daily_revenue.labour_cost` is never populated by `AggregateDailyRevenueJob` (always null), so the old branch-level `labour_cost_pct` was always null — computing labour cost from attendance × rate is the only working basis. There is no `orders.server_id`/`waiter_id`, so sales-per-staff performance is impossible without new schema; attendance-based performance ships now, sales attribution deferred.
+**Implementation:**
+- `ReportController::staff` now returns `by_branch` (unchanged), `by_staff` (`user_id, name, role, shift_count, total_hours, overtime_shifts, late_arrivals, labour_cost`, sorted by labour cost desc), `total_labour_cost`, `gross_revenue`, and `labour_cost_pct`. Users loaded with `roles:id,name` (first role as the label); `employment` is array-cast so `hourly_rate` reads directly; missing rate ⇒ 0.
+- `/web` new `/analytics/staff` page + AnalyticsNav tab (gated `analytics.staff_aggregate`): branch + date-range filter, summary cards (total labour cost, labour-cost %, gross revenue) and a per-staff table. apiClient + local `useState`.
+- **Deferred:** if `orders` later gains a staff/server attribution column, sales-based performance (covers/sales per staff, sales-per-labour-hour) can extend `by_staff`.
+
+---
+
 ## Decision 32 — COGS Calculation (Movement-Derived, Dedicated Endpoint)
 
 **Date decided:** 2026-06-13
