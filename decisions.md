@@ -303,6 +303,15 @@ _Record any architectural decisions made during development here. Date every ent
 **Date decided:** 2026-05-14
 **Decision:** The landing app supports multiple languages per restaurant. The staff app and admin app are English-only (MVP).
 **Supported locales:** `en-US`, `en-GB`, `fr-FR`, `es-ES`, `de-DE`, `de-AT`, `pl-PL`, `it-IT`
+
+> **Amendment (2026-06-14):** the "English-only (MVP)" clause is **superseded**. The i18n
+> string-extraction work (plan `2026-05-25-i18n-string-extraction.md`, sessions 7–20) wired
+> **both** the staff app (`/web`) and admin app (`/admin`) with the full 7-locale `I18nStore`,
+> fetching from `GET /api/v1/translations/{locale}?app=web` and `?app=admin` respectively
+> (backend lang files `lang/{locale}/web.php` and `lang/{locale}/admin.php`). All three apps
+> are now multi-locale. **Data-completeness caveat:** only `en-US` is fully translated for
+> `web`/`admin`; the other six locales fall back to English (Task 14 of that plan is still open
+> — new keys are added to `en-US` only).
 **Architecture:**
 - Each tenant configures which locales they support via `landing_template_settings.supported_locales` (JSONB array)
 - Backend exposes `GET /api/v1/translations/{locale}?app=landing` returning a flat key→value translation map
@@ -444,6 +453,17 @@ _Record any architectural decisions made during development here. Date every ent
 - `ReportController::staff` now returns `by_branch` (unchanged), `by_staff` (`user_id, name, role, shift_count, total_hours, overtime_shifts, late_arrivals, labour_cost`, sorted by labour cost desc), `total_labour_cost`, `gross_revenue`, and `labour_cost_pct`. Users loaded with `roles:id,name` (first role as the label); `employment` is array-cast so `hourly_rate` reads directly; missing rate ⇒ 0.
 - `/web` new `/analytics/staff` page + AnalyticsNav tab (gated `analytics.staff_aggregate`): branch + date-range filter, summary cards (total labour cost, labour-cost %, gross revenue) and a per-staff table. apiClient + local `useState`.
 - **Deferred:** if `orders` later gains a staff/server attribution column, sales-based performance (covers/sales per staff, sales-per-labour-hour) can extend `by_staff`.
+
+---
+
+## Decision 41 — Drop Vestigial `customer_profiles.no_show_count`
+
+**Date decided:** 2026-06-14
+**Decision:** The platform-level `customer_profiles.no_show_count` column is **dropped** (removed from the `create_customer_profiles` migration — merge-into-create, needs `migrate:fresh`). No-show counts are tenant-scoped and live solely on `customer_tenant_profiles.no_show_count`.
+**Rationale:** GAPS.md §9 schema-drift. Bug B2's fix moved all no-show writes to the tenant profile (per Decision 3 / the schema doc), leaving the platform column never written — it was only echoed (always 0) by `CustomerProfileResource`. Removing it eliminates the drift rather than documenting a dead column.
+**Implementation:**
+- Removed `$table->unsignedSmallInteger('no_show_count')` from `2026_04_07_000006_create_customer_profiles_table.php`.
+- Dropped `no_show_count` from `CustomerProfileResource`. Verified no consumer of the **platform** field exists: `/web` and the customer portal read the **tenant** profile's `no_show_count` (`CustomerTenantProfileResource` / `PortalLoyalty`), `CustomerMergeService` consolidates the tenant-profile field, and `ReservationService` reads/increments the tenant-profile field. The `CustomerProfile` model never declared it in `$fillable`/`$casts`.
 
 ---
 

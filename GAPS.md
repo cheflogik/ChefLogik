@@ -136,11 +136,8 @@
 - [ ] Staging environment end-to-end verification (confirm and tick)
 
 ## 9. Doc Drift Watchlist
-- [ ] **Decision 25 is stale**: it says staff (`/web`) and admin apps are "English-only (MVP)", but the i18n
-  work (sessions 7–20, plan `2026-05-25-i18n-string-extraction.md`) wired both apps with 7 locales.
-  Update Decision 25 or append an amendment when convenient.
-- [ ] Platform-level `customer_profiles.no_show_count` column exists in code but not in
-  `docs/03-database-schema.md` — schema drift; consider dropping the column (needs migration decision).
+- [x] ~~**Decision 25 is stale**: "English-only (MVP)" for staff/admin~~ — ✓ FIXED 2026-06-14: amendment appended to Decision 25 noting both `/web` and `/admin` now run the 7-locale `I18nStore` (en-US fully translated; other six fall back, Task 14 open).
+- [x] ~~Platform-level `customer_profiles.no_show_count` column drift~~ — ✓ FIXED 2026-06-14 (**Decision 41**): dropped the vestigial column from the create migration + `CustomerProfileResource`. No-show counts live only on `customer_tenant_profiles.no_show_count`.
 
 ## 10. Recommended Order of Attack
 
