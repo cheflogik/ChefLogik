@@ -48,7 +48,7 @@
 - [x] ~~Branch-local time for analytics daily windows + scheduled report cadence~~ — ✓ FIXED 2026-06-12 (see B4)
 
 ### Menu
-- [ ] `GET /branches/{id}/qr-code` endpoint (blocks QR-per-branch UI)
+- [x] ~~`GET /branches/{id}/qr-code` endpoint (blocks QR-per-branch UI)~~ — ✓ FIXED 2026-06-14 (**Decision 38**): `GET /branches/{branch}/qr-code` (gated `branches.view`) returns `{ url, svg }` — server-generated SVG QR (`endroid/qr-code`) encoding `{LANDING_URL}/{tenant-slug}?branch={id}`. `/web` branch edit page shows the QR with SVG download + print.
 - [ ] `auto_restore_mode` on 86 (blocks UI; inventory-triggered 86 must stay manual-restore per food-safety rule)
 
 > Corrected from older docs: **CLV formula** (`RecalculateRfmSegmentsJob::calculateClv`) and the

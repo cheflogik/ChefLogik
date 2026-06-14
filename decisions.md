@@ -445,6 +445,20 @@ _Record any architectural decisions made during development here. Date every ent
 
 ---
 
+## Decision 38 — Branch QR Code (Server-Generated SVG, Landing-Home Target)
+
+**Date decided:** 2026-06-14
+**Decision:** `GET /v1/branches/{branch}/qr-code` (gated `branches.view`) returns `{ url, svg }` — the branch's public landing URL and a **server-generated SVG** QR code encoding it. The QR links to the **landing home scoped to the branch**: `{LANDING_URL}/{tenant-slug}?branch={branch_id}`.
+**Rationale:** GAPS.md §3 (Menu) — the endpoint was missing and blocked the QR-per-branch UI. Server-side SVG keeps the QR canonical (one source of truth for the encoded URL, no landing host hardcoded in the staff app) and needs no frontend rendering dependency. Landing home (vs menu/reserve) was chosen so a single code reaches menu, reservations, and loyalty.
+**New dependency + config (approved):**
+- **`endroid/qr-code ^6.1`** (composer) — SVG output via `SvgWriter` (uses ext-dom/XMLWriter, no GD). `bacon/qr-code` was the first choice but did not resolve for this PHP/stability; endroid is the equivalent, more widely used lib.
+- **`config('app.landing_url')`** ← new `LANDING_URL` env (`.env.example` defaults to `http://localhost:5700`; `config/app.php` falls back to `https://landing.cheflogik.com`). No new config file — a key on the existing `app` config.
+**Implementation:**
+- `BranchController::qrCode` — tenant-mismatch `abort_if` + `branches.view`; builds the URL from `app.landing_url` + `$branch->tenant->slug` + `?branch={id}`; `(new SvgWriter())->write(new QrCode(data: $url, size: 320, margin: 8))->getString()`. Route registered next to the branch hours routes.
+- `/web` branch edit page (`branches/$branchId.tsx`) gains a `BranchQrSection`: fetches the endpoint (apiClient + local `useState`), renders the SVG inline, shows the URL, and offers SVG download + print (print opens a window with the SVG + URL).
+
+---
+
 ## Decision 32 — COGS Calculation (Movement-Derived, Dedicated Endpoint)
 
 **Date decided:** 2026-06-13
