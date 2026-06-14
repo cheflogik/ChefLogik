@@ -104,7 +104,7 @@
 ### Cross-cutting
 - [ ] Global search (header input is static)
 - [ ] Pagination on most lists (customers list has it)
-- [ ] Retry flows on error states; skeleton loaders
+- [x] ~~Retry flows on error states; skeleton loaders~~ — ✓ FIXED 2026-06-14: reusable `Skeleton`/`SkeletonRows`/`SkeletonCards` + `ErrorRetry` components (`/web` `components/ui/`). Applied to the 5 analytics report pages (which previously **swallowed fetch errors silently** — now show ErrorRetry on failure + SkeletonCards while loading) and the event-detail Orders tab. (Pagination is the separate item below; still open.)
 
 > Corrected from frontend-gaps.md (all verified implemented): X-Branch-Id header (`api.ts:22`),
 > admin impersonation + tenant reactivate (`PlatformStore`, `tenants.tsx`), feature flags API wiring
