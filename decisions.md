@@ -634,7 +634,7 @@ _Record any architectural decisions made during development here. Date every ent
 
 ---
 
-## Decision 48 — Per-Event Custom Menu Builder (`events.custom_menu` Shape + EventResource)
+## Decision 49 — Per-Event Custom Menu Builder (`events.custom_menu` Shape + EventResource)
 
 **Date decided:** 2026-06-14
 **Decision:** The previously-empty `events.custom_menu` JSONB extension point becomes a real per-event bespoke menu builder. Each row is a **priced line item** `{ id, name, pricing_mode, unit_price, quantity|null, notes|null, menu_item_id|null }`. `pricing_mode` is a per-row toggle (`per_item` | `per_head`) with a **single** `unit_price` field: per-item line total = `unit_price × quantity`; per-head line total = `unit_price × event.guest_count`. `menu_item_id` is an **optional** reference to an existing (tenant-scoped) menu item that autofills name/price on the frontend; name and price are still stored inline. The subtotal (`custom_menu_subtotal`, computed server-side, mode-aware) is **display-only** — it is surfaced as an "Estimated event value" (`package price_per_head × guest_count` + custom-menu subtotal) alongside the package, and **does not** feed `actual_spend` or the minimum-spend compliance check (those stay driven solely by linked POS orders — Decision 42). Editable **update-only** (the enquiry `store` is unchanged); read needs `events.view`, edit needs `events.manage` (no new slug). **No migration** — the column, `array` cast, and `fillable` entry already existed.
