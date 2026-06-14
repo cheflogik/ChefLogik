@@ -14,11 +14,17 @@ LANDING_CONTAINER := cheflogik-admin
 
 # ── Dev Server  ───────────────────────────────────────────────────────
 
-dev-setup: ## Build frontend & backend composer install
-	cd api && composer setup && cd ../web && yarn
+dev-api-setup: ## Build backend composer install
+	cd api && composer setup
 
-dev: ## Run backend API & frontend
-	cd web && yarn dev && cd ../api && composer dev
+dev-api: ## Run backend API
+	cd api && composer dev
+
+dev-web-setup: ## Build frontend install
+	cd web && yarn
+
+dev-web: ## Run frontend
+	cd web && yarn dev
 
 
 # ── Backend API  ────────────────────────────────────────────────────
