@@ -103,7 +103,7 @@
 
 ### Cross-cutting
 - [ ] Global search (header input is static)
-- [ ] Pagination on most lists (customers list has it)
+- [x] ~~Pagination on most lists (customers list has it)~~ — ✓ FIXED 2026-06-14 (Wave 8, **Decision 44**): inventory items / suppliers / waste-logs / per-item movements endpoints returned bare `{data:get()}` (no pagination; 4 pre-existing tests asserted `data.total` and were failing). Now `ApiResponse::paginated` → `{data, meta:{total}}` (codebase-standard shape). `/web` `InventoryStore` accumulates pages (per_page 100) with `loadMore*` + `hasMore*`; items/suppliers/waste-logs pages get a `common.load_more` button under the DataTable. 4 api assertions updated `data.total → meta.total`; web InventoryStore mocks wrapped. api 17 + web 22 tests green. (Other list endpoints already paginate or are bounded; this closes the inventory family flagged in GAPS.)
 - [x] ~~Retry flows on error states; skeleton loaders~~ — ✓ FIXED 2026-06-14: reusable `Skeleton`/`SkeletonRows`/`SkeletonCards` + `ErrorRetry` components (`/web` `components/ui/`). Applied to the 5 analytics report pages (which previously **swallowed fetch errors silently** — now show ErrorRetry on failure + SkeletonCards while loading) and the event-detail Orders tab. (Pagination is the separate item below; still open.)
 
 > Corrected from frontend-gaps.md (all verified implemented): X-Branch-Id header (`api.ts:22`),
