@@ -114,9 +114,9 @@
 > events packages/spaces/corporate-accounts (built, 220–300 lines each).
 
 ## 5. Platform Admin (`/admin`)
-- [ ] Tenant: change plan action
-- [ ] Subscription plans: create-new-plan flow (`billing.tsx` has edit only)
-- [ ] Platform analytics: per-tenant drill-down (Top Tenants not clickable)
+- [x] ~~Tenant: change plan action~~ — ✓ FIXED 2026-06-14: change-plan select + apply in the tenant DetailPanel → `POST /tenants/{tenant}/change-plan` (backend already existed). `PlatformService.changePlan` + store action.
+- [x] ~~Subscription plans: create-new-plan flow (`billing.tsx` has edit only)~~ — ✓ FIXED 2026-06-14: "New plan" button + modal (name/slug/max_branches/price/features/active) → `POST /plans` (backend existed). Note: `billing.tsx` was actually read-only, not edit-only.
+- [x] ~~Platform analytics: per-tenant drill-down (Top Tenants not clickable)~~ — ✓ FIXED 2026-06-14: the platform-analytics page (previously all mock) gains a real "Per-Tenant Usage" section listing actual tenants; clicking one loads its real `GET /tenants/{tenant}/stats` inline. (No "top by revenue" ranking endpoint exists — true ranking deferred.)
 
 ## 6. Deferred (tracked, not scheduled)
 - Course tracking on floor view (`orders.current_course` enum + bump control) — per CLAUDE.md
