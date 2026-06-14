@@ -68,7 +68,8 @@
       "Bash(echo \"=== ESLINT EXIT: $? ===\")",
       "Bash(grep -rln \"search\\\\|Search\" src/components/layout/)",
       "Bash(ls src/components/layout/)",
-      "Bash(grep -rln \"placeholder.*[Ss]earch\\\\|type=\\\\\"search\\\\\"\\\\|<input\" src/components/layout/)"
+      "Bash(grep -rln \"placeholder.*[Ss]earch\\\\|type=\\\\\"search\\\\\"\\\\|<input\" src/components/layout/)",
+      "Bash(./vendor/bin/pint app/Models/MetricAlert.php app/Enums/Analytics app/Services/Analytics/MetricAlertEvaluator.php app/Console/Commands/EvaluateMetricAlertsCommand.php app/Mail/MetricAlertBreachedMail.php app/Http/Controllers/Api/V1/Analytics/MetricAlertController.php app/Http/Controllers/Api/V1/Analytics/SavedReportController.php app/Http/Requests/Analytics app/Http/Resources/Analytics/MetricAlertResource.php)"
     ]
   }
 }
