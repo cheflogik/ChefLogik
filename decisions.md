@@ -425,6 +425,8 @@ _Record any architectural decisions made during development here. Date every ent
 - **Seats** = sum of the branch's table capacities (`Σ tables.capacity_max`), derived from the floor/table layout — e.g. 2 floors × 4 tables × 4 seats = 32. No separate branch seat-count column is introduced (Group C item 9 may add one later; RevPASH will switch to it if so).
 - **Open hours** per day come from `branches.operating_hours` for the weekday, overridden by `special_operating_hours` (a closed day from either source contributes 0). Open/close are branch-local wall-clock strings; a close at/after open is treated as crossing midnight. Hour durations are timezone-independent, and a calendar date's weekday is identical in any timezone, so branch-local correctness holds without per-row TZ conversion.
 - **Revenue** = `gross_revenue` from the pre-aggregated `analytics_daily_revenue` summed over the date range, **all channels** (dine-in + takeaway + delivery + online + Uber/Wolt), per the product call — not dine-in only. `analytics_daily_revenue.date` is already stored in the tenant primary-branch local day (per `AggregateDailyRevenueJob`), so date-range filtering is consistent.
+
+**Amendment (2026-06-14, Decision 39):** seats now prefer the explicit `branch.seat_count` setting when set (`> 0`), falling back to `Σ tables.capacity_max` otherwise. `RevpashReportService` gained a `SettingsService` dependency and resolves `branch.seat_count` per branch.
 **Rationale:** GAPS.md §3 listed RevPASH as not implemented. The seat-hour denominator and revenue are both already derivable (tables, operating/special hours, daily-revenue aggregate), so no valuation snapshot or new column was needed for MVP scale. Reusing `analytics.revenue_branch` keeps it on the existing revenue-report permission.
 **Implementation:**
 - `App\Services\Analytics\RevpashReportService::generate(tenantId, from, to, ?branchId)` returns overall `revpash`, `revenue`, `seat_hours`, plus a `by_branch` array (`seats`, `open_hours`, `seat_hours`, `revenue`, `revpash`); divide-by-zero (no seats or fully-closed range) yields `null`.
@@ -456,6 +458,18 @@ _Record any architectural decisions made during development here. Date every ent
 **Implementation:**
 - `BranchController::qrCode` — tenant-mismatch `abort_if` + `branches.view`; builds the URL from `app.landing_url` + `$branch->tenant->slug` + `?branch={id}`; `(new SvgWriter())->write(new QrCode(data: $url, size: 320, margin: 8))->getString()`. Route registered next to the branch hours routes.
 - `/web` branch edit page (`branches/$branchId.tsx`) gains a `BranchQrSection`: fetches the endpoint (apiClient + local `useState`), renders the SVG inline, shows the URL, and offers SVG download + print (print opens a window with the SVG + URL).
+
+---
+
+## Decision 39 — Branch Business-Target Settings (Settings Registry, No Migration)
+
+**Date decided:** 2026-06-14
+**Decision:** Branch business targets — **seat count, monthly revenue target, food-cost-% target, waste threshold %, and per-platform delivery commission rates** — are stored as branch-scoped keys in the **settings registry** (`config/settings.php`), not as new `branches` columns. They surface on the existing `/web` branch settings page (catalogue-driven) via the existing `/settings/branch/{branch}` GET/PATCH endpoints. No migration.
+**Rationale:** GAPS.md §4 — these were missing. The settings registry (branch → tenant → platform → default cascade) + the catalogue-driven branch settings page + endpoints already existed, so adding keys is migration-free and immediately editable in the UI. Dedicated columns would add schema rigidity for values that are operator-tunable config.
+**Implementation:**
+- New keys (group `operations`, permission `branches.edit` — `SettingsService::canEdit` accepts any slug, and these are branch-detail config): `branch.seat_count` (int, branch-scope only, 0 = derive from layout), `branch.revenue_target` (decimal), `branch.food_cost_target_pct` (decimal, default 30), `branch.waste_threshold_pct` (decimal, default 5), `branch.commission_uber_eats` / `branch.commission_wolt` (decimal %, default 30).
+- `/web`: added `operations` to `GROUP_LABELS`, the `SettingGroup` union, and the branch page's `BRANCH_GROUPS` whitelist — the catalogue-driven page renders the new fields automatically.
+- **RevPASH (Decision 36) amended:** `branch.seat_count` is now the preferred seat source, falling back to `Σ tables.capacity_max` when 0/unset.
 
 ---
 

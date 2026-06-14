@@ -85,7 +85,7 @@
 ### Branches
 - [x] ~~Operating hours editor (weekly schedule)~~ — ✓ FIXED 2026-06-13: weekly operating-hours editor on branch edit page (per-day open/closed Switch + open/close TimePickers), saved via `operating_hours` on `PATCH /branches/{id}`.
 - [x] ~~Special operating hours CRUD~~ — ✓ FIXED 2026-06-13: special-hours section (list + add date/closed/times/reason + delete) wired to `GET/POST/DELETE /branches/{id}/hours`.
-- [ ] Branch settings (seat count, revenue targets, food-cost % target, waste threshold, delivery commission rates)
+- [x] ~~Branch settings (seat count, revenue targets, food-cost % target, waste threshold, delivery commission rates)~~ — ✓ FIXED 2026-06-14 (**Decision 39**): added as branch-scoped settings-registry keys (group `operations`, `branches.edit`) — `branch.seat_count`, `branch.revenue_target`, `branch.food_cost_target_pct`, `branch.waste_threshold_pct`, `branch.commission_uber_eats/wolt`. No migration; auto-render on the catalogue-driven branch settings page. RevPASH (Decision 36) now prefers `branch.seat_count`, falling back to Σ tables.capacity_max.
 
 ### Integrations (entire section missing)
 - [x] ~~Uber Eats / Wolt credential entry into `tenant_integrations`~~ — ✓ FIXED 2026-06-13: `GET/PUT /v1/integrations[/{type}]` (`TenantIntegrationController`, `integrations.manage` permission per **Decision 30**); `/web` Settings → Integrations tab (`settings/integrations.tsx`) with masked-secret credential forms + per-platform settings (auto-accept, menu-sync, commission %).
