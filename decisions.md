@@ -447,6 +447,19 @@ _Record any architectural decisions made during development here. Date every ent
 
 ---
 
+## Decision 40 — 86 Auto-Restore (Manual 86s Only; Inventory-Stockout Always Manual)
+
+**Date decided:** 2026-06-14
+**Decision:** A **manual** 86 can carry an auto-restore policy — `auto_restore_mode ∈ {none, end_of_day, scheduled}` with an `auto_restore_at` timestamp. An **inventory_stockout** 86 is **always forced to `none`** and never auto-restores — manual manager confirmation remains mandatory (food-safety rule, CLAUDE.md §5). The two new columns are **merged into the create migration** (`eighty_six_log` is not yet in a live env; needs `migrate:fresh`).
+**Rationale:** GAPS.md §3 (Menu) — `auto_restore_mode` was missing and blocked the UI. Letting staff schedule a manual 86 to come back automatically (end of service / a set time) is a real operational need, while the food-safety invariant for stock-driven 86s must be preserved. All three modes were chosen for flexibility.
+**Implementation:**
+- New enum `EightySixAutoRestoreMode` (none / end_of_day / scheduled). Columns `auto_restore_mode` (default `none`) + `auto_restore_at` on `eighty_six_log`, with CHECK constraints for the enum and a **DB-level food-safety guard** (`trigger_type <> 'inventory_stockout' OR auto_restore_mode = 'none'`) plus a partial index on `auto_restore_at` for the sweep.
+- `EightySixService::eightySix()` gained `$autoRestoreMode` + `$autoRestoreAt`; forces `none` for inventory_stockout; resolves `auto_restore_at` for `end_of_day` as the **branch-local** end of the started day (Decision 26). New `autoRestoreDue()` restores due manual 86s as a **system action** (no user, `restored_by` null, note `Auto-restored (mode)`), excluding inventory_stockout at the query level, firing the same `ItemAvailabilityChanged` + platform-sync side-effects as a manual restore.
+- `AutoRestoreEightySixJob` runs every 5 min (`high` queue, `withoutOverlapping`). `EightySixItemRequest` validates the mode + `required_if`/`after:now` on the timestamp; `MenuItemController::eightySix` passes them; `EightySixLogResource` exposes both fields.
+- `/web` item-detail 86 section: mode `Select` (+ `DatePicker`/`TimePicker` when `scheduled`) before the 86 button; active manual 86s show their pending auto-restore. Quick-86 elsewhere defaults to `none`.
+
+---
+
 ## Decision 38 — Branch QR Code (Server-Generated SVG, Landing-Home Target)
 
 **Date decided:** 2026-06-14

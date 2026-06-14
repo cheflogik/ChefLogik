@@ -49,7 +49,7 @@
 
 ### Menu
 - [x] ~~`GET /branches/{id}/qr-code` endpoint (blocks QR-per-branch UI)~~ — ✓ FIXED 2026-06-14 (**Decision 38**): `GET /branches/{branch}/qr-code` (gated `branches.view`) returns `{ url, svg }` — server-generated SVG QR (`endroid/qr-code`) encoding `{LANDING_URL}/{tenant-slug}?branch={id}`. `/web` branch edit page shows the QR with SVG download + print.
-- [ ] `auto_restore_mode` on 86 (blocks UI; inventory-triggered 86 must stay manual-restore per food-safety rule)
+- [x] ~~`auto_restore_mode` on 86 (blocks UI; inventory-triggered 86 must stay manual-restore per food-safety rule)~~ — ✓ FIXED 2026-06-14 (**Decision 40**): `auto_restore_mode` (none/end_of_day/scheduled) + `auto_restore_at` on `eighty_six_log` (merged into create migration; DB CHECK forces inventory_stockout → none). `AutoRestoreEightySixJob` (every 5 min) restores due **manual** 86s only; inventory-stockout always manual. `/web` item-detail 86 section gains the mode picker.
 
 > Corrected from older docs: **CLV formula** (`RecalculateRfmSegmentsJob::calculateClv`) and the
 > **tax collected report** (`GET /analytics/tax-report`) are implemented — NextSteps.md and CLAUDE.md
