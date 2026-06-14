@@ -44,7 +44,7 @@
 
 ### Analytics
 - [x] ~~COGS calculation (`opening_stock + purchases − closing_stock`)~~ — ✓ FIXED 2026-06-13 (**Decision 32**): `CogsReportService` (movement-derived, no new schema) + `GET /analytics/cogs-report` gated by `inventory.view_cogs`. Per-movement value `quantity × COALESCE(unit_cost, wac_after, 0)`; returns opening/purchases/closing/cogs, waste_cost, food_cost_pct, and by-category breakdown.
-- [ ] RevPASH — **not implemented anywhere** (the old "must respect special hours" framing understated this)
+- [x] ~~RevPASH — **not implemented anywhere**~~ — ✓ FIXED 2026-06-14 (**Decision 36**): `RevpashReportService` + `GET /analytics/revpash` (gated `analytics.revenue_branch`) — `Σ gross_revenue (all channels) ÷ Σ(seats × open_hours)`, seats = `Σ tables.capacity_max`, branch-local operating/special hours (Decision 26), no new schema. `/web` `/analytics/revpash` page + AnalyticsNav tab (summary cards + by-branch table).
 - [x] ~~Branch-local time for analytics daily windows + scheduled report cadence~~ — ✓ FIXED 2026-06-12 (see B4)
 
 ### Menu

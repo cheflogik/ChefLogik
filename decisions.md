@@ -417,6 +417,22 @@ _Record any architectural decisions made during development here. Date every ent
 
 ---
 
+## Decision 36 — RevPASH (Revenue Per Available Seat-Hour)
+
+**Date decided:** 2026-06-14
+**Decision:** RevPASH is computed as **`Σ gross_revenue (all order channels) ÷ Σ(seats × open_hours_per_day)`**, evaluated in branch-local time (Decision 26), served by a dedicated `GET /v1/analytics/revpash` gated by the existing `analytics.revenue_branch` permission. No new schema.
+**Scope choices (confirmed with product):**
+- **Seats** = sum of the branch's table capacities (`Σ tables.capacity_max`), derived from the floor/table layout — e.g. 2 floors × 4 tables × 4 seats = 32. No separate branch seat-count column is introduced (Group C item 9 may add one later; RevPASH will switch to it if so).
+- **Open hours** per day come from `branches.operating_hours` for the weekday, overridden by `special_operating_hours` (a closed day from either source contributes 0). Open/close are branch-local wall-clock strings; a close at/after open is treated as crossing midnight. Hour durations are timezone-independent, and a calendar date's weekday is identical in any timezone, so branch-local correctness holds without per-row TZ conversion.
+- **Revenue** = `gross_revenue` from the pre-aggregated `analytics_daily_revenue` summed over the date range, **all channels** (dine-in + takeaway + delivery + online + Uber/Wolt), per the product call — not dine-in only. `analytics_daily_revenue.date` is already stored in the tenant primary-branch local day (per `AggregateDailyRevenueJob`), so date-range filtering is consistent.
+**Rationale:** GAPS.md §3 listed RevPASH as not implemented. The seat-hour denominator and revenue are both already derivable (tables, operating/special hours, daily-revenue aggregate), so no valuation snapshot or new column was needed for MVP scale. Reusing `analytics.revenue_branch` keeps it on the existing revenue-report permission.
+**Implementation:**
+- `App\Services\Analytics\RevpashReportService::generate(tenantId, from, to, ?branchId)` returns overall `revpash`, `revenue`, `seat_hours`, plus a `by_branch` array (`seats`, `open_hours`, `seat_hours`, `revenue`, `revpash`); divide-by-zero (no seats or fully-closed range) yields `null`.
+- `ReportController::revpash` (method-injected service, mirrors `cogsReport`); route registered next to `/analytics/revenue`.
+- `/web` `/analytics/revpash` page + AnalyticsNav tab (gated `analytics.revenue_branch`): branch + date-range filter, summary cards (RevPASH, gross revenue, seat-hours) and a by-branch table. apiClient + local `useState` (report-page idiom, not MST).
+
+---
+
 ## Decision 32 — COGS Calculation (Movement-Derived, Dedicated Endpoint)
 
 **Date decided:** 2026-06-13
