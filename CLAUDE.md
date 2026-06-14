@@ -29,10 +29,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `cheflogik-landing` — React 19 customer-facing website per restaurant (at `/landing` locally, own git repo)
 - The `/api`, `/web`, `/admin`, and `/landing` directories are ignored by this repo's git
 
-**Outstanding known gaps** (not yet implemented — see `NextSteps.md` for full detail):
+**Outstanding known gaps** — full verified list in `GAPS.md` (single source of truth, supersedes `NextSteps.md`, `.claude/pending.md`, `.claude/frontend-gaps.md`):
 - Reservations: No-show deposit requirement flag; loyalty member no-show forgiveness
-- Customers: Event 2× loyalty multiplier; 30-day downgrade grace period warning; 12-month points expiry warning; manual profile merge endpoint
-- Analytics: CLV formula; COGS finalisation; tax collected report; RevPASH with special hours
+- Customers: Event 2× loyalty multiplier; downgrade grace warning; points expiry mechanics; manual profile merge endpoint
+- Analytics: COGS calculation; RevPASH (note: CLV formula and tax collected report ARE implemented — older docs were wrong)
+- Plus verified bugs, security edge cases, and frontend gaps — see `GAPS.md`
 
 **Before writing any code:** read `decisions.md` in full, then read the relevant module docs and skill files.
 
@@ -182,7 +183,7 @@ Decisions 7 (Stripe), 8 (Twilio), 9 (Amazon SES), and 22 (Wolt replaces DoorDash
 ### Before writing any code
 1. This file (`CLAUDE.md`) — understand the decisions summary in Section 2
 2. `decisions.md` — read in full; record any new decisions here before proceeding
-3. `NextSteps.md` — known outstanding gaps and integration status
+3. `GAPS.md` — single source of truth for outstanding gaps, verified bugs, and open decisions (supersedes `NextSteps.md`)
 4. `docs/01-project-overview.md` — business context and non-negotiable rules
 5. `docs/02-tech-stack.md` — Laravel/React conventions and folder structure
 6. `docs/03-database-schema.md` — all tables, columns, indexes
@@ -358,10 +359,10 @@ Use `.claude/skills/fix-migrations.md` to decide. The rule of thumb: if the tabl
 - **External integrations** — ALL COMPLETE (Stripe, Twilio, SES, Uber Eats, Wolt)
 - Jenkins pipelines + Terraform deployment (staging + production — ✓ Infisical project IDs configured)
 
-**Known remaining gaps** (see `NextSteps.md` for full detail):
+**Known remaining gaps** (see `GAPS.md` for the full verified list):
 - Reservations: no-show deposit flag; loyalty no-show forgiveness
-- Customers: event 2× loyalty multiplier; downgrade grace warning; points expiry warning; manual merge
-- Analytics: CLV formula; COGS calc; tax collected report; RevPASH with special hours
+- Customers: event 2× loyalty multiplier; downgrade grace warning; points expiry mechanics; manual merge
+- Analytics: COGS calc; RevPASH (CLV formula and tax collected report are implemented)
 
 > **Course tracking (deferred):** The occupied table popup on the floor view shows a placeholder "Course: —". This requires adding `current_course` (enum: starters|mains|desserts) to the `orders` table and a UI control for staff to bump the course on the floor view. Implement when KDS course tracking is prioritised.
 

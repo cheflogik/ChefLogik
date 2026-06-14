@@ -53,7 +53,22 @@
       "Bash(git commit *)",
       "Bash(git *)",
       "Bash(awk *)",
-      "Read(//Users/deepak/.claude/plans/**)"
+      "Read(//Users/deepak/.claude/plans/**)",
+      "Bash(./vendor/bin/pint app/Http/Controllers/Api/V1/Customers/CustomerController.php)",
+      "Bash(./vendor/bin/pint app/Services/Analytics/CogsReportService.php app/Http/Controllers/Api/V1/Analytics/ReportController.php)",
+      "Bash(./vendor/bin/pint --test app/Services/Analytics/CogsReportService.php app/Http/Controllers/Api/V1/Analytics/ReportController.php)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(echo \"tsc exit: $?\")",
+      "Read(//tmp/**)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(grep -E '^DB_HOST|^DB_PORT|^DB_DATABASE' .env)",
+      "Bash(grep -E '^DB_HOST|^DB_PORT|^DB_DATABASE' .env.testing)",
+      "Bash(pg_isready -h 127.0.0.1 -p 5432)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(echo \"=== ESLINT EXIT: $? ===\")",
+      "Bash(grep -rln \"search\\\\|Search\" src/components/layout/)",
+      "Bash(ls src/components/layout/)",
+      "Bash(grep -rln \"placeholder.*[Ss]earch\\\\|type=\\\\\"search\\\\\"\\\\|<input\" src/components/layout/)"
     ]
   }
 }

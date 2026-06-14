@@ -11,6 +11,16 @@ LANDING_IMAGE := cheflogik-admin-img
 LANDING_CONTAINER := cheflogik-admin
 
 
+
+# ── Dev Server  ───────────────────────────────────────────────────────
+
+dev-setup: ## Build frontend & backend composer install
+	cd api && composer setup && cd ../web && yarn
+
+dev: ## Run backend API & frontend
+	cd web && yarn dev && cd ../api && composer dev
+
+
 # ── Backend API  ────────────────────────────────────────────────────
 api-build: ## Build frontend docker image
 	cd api && docker build -t $(API_IMAGE) .
