@@ -33,8 +33,9 @@ class AggregateHourlySnapshotJob implements ShouldQueue
 ```
 
 ## RFM Scoring Algorithm
+RFM/CLV run per-tenant over `CustomerTenantProfile` (holds `lifetime_visits`, `lifetime_spend`, `last_visit_at`, `tenant_id`) — NOT the platform `CustomerProfile`. `RecalculateRfmSegmentsJob` reads `CustomerTenantProfile::withoutGlobalScope(TenantScope::class)->where('tenant_id', …)`; monetary quintiles are computed per-tenant; CLV via `calculateClv`.
 ```php
-private function calculateRFMScores(CustomerProfile $profile, Carbon $calculatedAt): array
+private function calculateRFMScores(CustomerTenantProfile $profile, Carbon $calculatedAt): array
 {
     $daysSinceLastVisit = $profile->last_visit_at
         ? $profile->last_visit_at->diffInDays($calculatedAt) : 999;
@@ -82,7 +83,7 @@ private function classifySegment(int $r, int $f, int $m): string
 // Churn risk: time since last visit > 2× expected visit interval
 // Expected interval: avg days between visits
 
-$churnRiskScore = function(CustomerProfile $profile, AnalyticsCustomerSegment $segment): int {
+$churnRiskScore = function(CustomerTenantProfile $profile, AnalyticsCustomerSegment $segment): int {
     if (!$profile->avg_visit_interval_days) return 0;
 
     $daysSinceLast = $profile->last_visit_at->diffInDays(now());

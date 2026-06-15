@@ -29,11 +29,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `cheflogik-landing` — React 19 customer-facing website per restaurant (at `/landing` locally, own git repo)
 - The `/api`, `/web`, `/admin`, and `/landing` directories are ignored by this repo's git
 
-**Outstanding known gaps** — full verified list in `GAPS.md` (single source of truth, supersedes `NextSteps.md`, `.claude/pending.md`, `.claude/frontend-gaps.md`):
-- Reservations: No-show deposit requirement flag; loyalty member no-show forgiveness
-- Customers: Event 2× loyalty multiplier; downgrade grace warning; points expiry mechanics; manual profile merge endpoint
-- Analytics: COGS calculation; RevPASH (note: CLV formula and tax collected report ARE implemented — older docs were wrong)
-- Plus verified bugs, security edge cases, and frontend gaps — see `GAPS.md`
+**Outstanding known gaps** — full verified list in `GAPS.md` (single source of truth, supersedes `NextSteps.md`, `.claude/pending.md`, `.claude/frontend-gaps.md`). As of 2026-06-14 every backend/feature/frontend gap previously tracked there is **shipped** (Decisions 26–49); the only items still open are operational, not code:
+- Staging environment end-to-end verification (GAPS §8 — confirm and tick)
+- i18n: only `en-US` is fully translated for `/web` + `/admin`; the other six locales fall back to English (i18n plan Task 14)
+- Deferred (tracked, not scheduled — GAPS §6): floor-view course tracking; Landing Phase 3 wave; Stripe Billing (manual billing for MVP, Decision 2)
 
 **Before writing any code:** read `decisions.md` in full, then read the relevant module docs and skill files.
 
@@ -359,10 +358,7 @@ Use `.claude/skills/fix-migrations.md` to decide. The rule of thumb: if the tabl
 - **External integrations** — ALL COMPLETE (Stripe, Twilio, SES, Uber Eats, Wolt)
 - Jenkins pipelines + Terraform deployment (staging + production — ✓ Infisical project IDs configured)
 
-**Known remaining gaps** (see `GAPS.md` for the full verified list):
-- Reservations: no-show deposit flag; loyalty no-show forgiveness
-- Customers: event 2× loyalty multiplier; downgrade grace warning; points expiry mechanics; manual merge
-- Analytics: COGS calc; RevPASH (CLV formula and tax collected report are implemented)
+**Known remaining gaps** (see `GAPS.md` for the full verified list): all backend/feature/frontend gaps are shipped (Decisions 26–49). Only operational items remain — staging end-to-end verification (GAPS §8), i18n locale data completeness (en-US only; Task 14), and the §6 deferred wave (course tracking, Landing Phase 3, Stripe Billing).
 
 > **Course tracking (deferred):** The occupied table popup on the floor view shows a placeholder "Course: —". This requires adding `current_course` (enum: starters|mains|desserts) to the `orders` table and a UI control for staff to bump the course on the floor view. Implement when KDS course tracking is prioritised.
 

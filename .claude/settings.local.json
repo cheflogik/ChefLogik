@@ -69,7 +69,15 @@
       "Bash(grep -rln \"search\\\\|Search\" src/components/layout/)",
       "Bash(ls src/components/layout/)",
       "Bash(grep -rln \"placeholder.*[Ss]earch\\\\|type=\\\\\"search\\\\\"\\\\|<input\" src/components/layout/)",
-      "Bash(./vendor/bin/pint app/Models/MetricAlert.php app/Enums/Analytics app/Services/Analytics/MetricAlertEvaluator.php app/Console/Commands/EvaluateMetricAlertsCommand.php app/Mail/MetricAlertBreachedMail.php app/Http/Controllers/Api/V1/Analytics/MetricAlertController.php app/Http/Controllers/Api/V1/Analytics/SavedReportController.php app/Http/Requests/Analytics app/Http/Resources/Analytics/MetricAlertResource.php)"
+      "Bash(./vendor/bin/pint app/Models/MetricAlert.php app/Enums/Analytics app/Services/Analytics/MetricAlertEvaluator.php app/Console/Commands/EvaluateMetricAlertsCommand.php app/Mail/MetricAlertBreachedMail.php app/Http/Controllers/Api/V1/Analytics/MetricAlertController.php app/Http/Controllers/Api/V1/Analytics/SavedReportController.php app/Http/Requests/Analytics app/Http/Resources/Analytics/MetricAlertResource.php)",
+      "Bash(echo \"exit: $? \\(1 = no matches, as expected\\)\")",
+      "Bash(./vendor/bin/pint app/Http/Requests/Events/UpdateEventRequest.php app/Http/Resources/Events/EventResource.php app/Services/Events/EventService.php app/Http/Controllers/Api/V1/Events/EventController.php)",
+      "Bash(echo \"=== TSC EXIT $? ===\")",
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(echo \"LINT_EXIT=$?\")",
+      "Bash(echo \"BUILD_EXIT=$?\")"
     ]
   }
 }

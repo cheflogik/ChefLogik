@@ -32,30 +32,24 @@ public function collectDeposit(Event $event, int $amountCents): string
 }
 ```
 
-## Recurring Events
+## Recurring Events (Decision 43)
+Rule shape is `{ frequency: weekly|monthly, occurrences: 1–52 }` — no `day_of_month`. Wired via `POST /events/{event}/recurrence` (`events.manage`) → `EventService::applyRecurrence`, which **regenerates**: deletes upcoming non-completed children, persists the rule on the parent, then calls `generateRecurringChildren`. Only a top-level event (`parent_event_id === null`) can start a series. Children inherit package/pricing/space/organiser and are created as `confirmed`.
 ```php
-// Parent event with recurrence_rule
-$parent = Event::create([
-    'recurrence_rule' => [
-        'frequency'  => 'monthly',
-        'day_of_month' => 15,
-        'occurrences' => 12,
-    ],
-    'parent_event_id' => null,  // Is the parent
-]);
-
-// Generate child events
-for ($i = 1; $i <= 12; $i++) {
-    Event::create([
-        'parent_event_id' => $parent->id,
-        'event_date'      => $parent->event_date->addMonths($i),
-        // Inherits package, pricing, space from parent
-    ]);
+public function applyRecurrence(Event $parent, array $rule): Collection
+{
+    return DB::transaction(function () use ($parent, $rule) {
+        $parent->childEvents()->where('status', '!=', EventStatus::Completed)->delete();  // keep completed
+        $parent->update(['recurrence_rule' => $rule]);
+        $this->generateRecurringChildren($parent, $rule);   // addWeeks($i) / addMonths($i) per occurrence
+        return $parent->childEvents()->orderBy('event_date')->get();
+    });
 }
-
-// Cancel parent → cancel all future (non-completed) children
-// Cancel individual child → leave recurrence_rule unchanged on parent
+// Cancel parent → cascades to future non-completed children. Cancel a child → parent rule unchanged.
 ```
+
+## Per-Event Custom Menu (Decision 49) & Linked Orders (Decision 42)
+- `events.custom_menu` (JSONB) is a priced line-item builder: `{ id, name, pricing_mode: per_item|per_head, unit_price, quantity|null, notes|null, menu_item_id|null }`. Subtotal (`custom_menu_subtotal`) is **display-only** — it does NOT feed `actual_spend` or minimum-spend compliance. Edit via `UpdateEventRequest` (update-only); all event-returning controller methods flow through `EventResource`.
+- Orders link to an event via nullable `orders.event_id` (manual attach/detach): `GET/POST/DELETE /events/{event}/orders` (read `events.view`, mutate `events.manage`, same-branch guard). `actual_spend` / minimum-spend are driven by these linked POS orders.
 
 ## Corporate Account Credit Check
 ```php
