@@ -3,6 +3,8 @@
 /web
 /admin
 /landing
+/ios
+/android
 
 .vscode
 .idea
