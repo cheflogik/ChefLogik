@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none" aria-label="ChefLogik App Icon Dark">
+  <rect x="0" y="0" width="96" height="96" rx="20" fill="#0F1B2D"/>
+
+  <g transform="translate(16, 16) scale(0.8)">
+    <circle cx="40" cy="11" r="2.8" fill="#F1EEE5" />
+    <line x1="40" y1="14" x2="40" y2="20" stroke="#F1EEE5" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M16 38 Q16 20 40 20 Q64 20 64 38" stroke="#F1EEE5" stroke-width="3" fill="none" stroke-linecap="round" />
+    <line x1="16" y1="38" x2="64" y2="38" stroke="#F1EEE5" stroke-width="3" stroke-linecap="round" />
+    <line x1="33" y1="46" x2="33" y2="50" stroke="#F1EEE5" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round" />
+    <line x1="47" y1="46" x2="47" y2="50" stroke="#F1EEE5" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round" />
+    <circle cx="40" cy="54" r="4.2" fill="#E89A25" />
+    <ellipse cx="40" cy="62" rx="28" ry="2.6" fill="#F1EEE5" opacity="0.18" />
+    <path d="M10 60 Q40 66 70 60" stroke="#F1EEE5" stroke-width="3" fill="none" stroke-linecap="round" />
+  </g>
+</svg>
