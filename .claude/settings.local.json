@@ -77,7 +77,19 @@
       "Bash(npx tsc *)",
       "Bash(npm run *)",
       "Bash(echo \"LINT_EXIT=$?\")",
-      "Bash(echo \"BUILD_EXIT=$?\")"
+      "Bash(echo \"BUILD_EXIT=$?\")",
+      "Bash(/usr/libexec/PlistBuddy -c \"Print :CFBundleIcons\" build/Build/Products/Debug-iphonesimulator/ChefLogik.app/Info.plist)",
+      "Bash(xcodegen generate *)",
+      "Bash(xcodebuild -scheme ChefLogik -destination 'platform=iOS Simulator,name=iPhone 16' build)",
+      "Bash(xcodebuild -scheme ChefLogik -destination 'platform=iOS Simulator,name=iPhone 17' build)",
+      "Bash(xcodebuild -scheme ChefLogik -destination 'platform=iOS Simulator,name=iPhone 17' clean build)",
+      "Bash(xcodebuild -version)",
+      "Bash(xcrun simctl *)",
+      "Bash(xcodebuild test *)",
+      "Bash(xcodebuild -project ChefLogik.xcodeproj -target ChefLogik -showBuildSettings -configuration Debug)",
+      "Bash(curl -s -o /dev/null -w \"localhost:8000 -> HTTP %{http_code} \\(time %{time_total}s\\)\\\\n\" --max-time 5 http://localhost:8000/api/v1/auth/me)",
+      "Bash(xcodebuild build *)",
+      "Bash(pkill -f \"ChefLogik\")"
     ]
   }
 }
